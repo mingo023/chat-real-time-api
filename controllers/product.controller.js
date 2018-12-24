@@ -25,15 +25,15 @@ ProductController.getAll = async (req, res) => {
 // get user by first name
 ProductController.getProduct = async (req, res) => {
   try {
-    let productName = req.params.name;
-    let product = await Product.find({ name: productName });
-    if (!productName) {
-      return res.json({ message: 'Username is required' });
+    let id = req.params.id;
+    if (!id) {
+      return res.json({ message: 'Id is required' });
     }
+    let product = await Product.findById(id);
     return res.json({ product });
   } catch (err) {
     return res.json({
-      message:  'Product not found',
+      message: 'Product not found',
       error: err
     });
   };
@@ -53,46 +53,76 @@ ProductController.addProduct = async (req, res) => {
         }
       });
     }
+    if (!desProduct) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Description is required field'
+        }
+      });
+    }
+    if (!price) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Price is required field'
+        }
+      });
+    }
+    if (!category) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Category is required field'
+        }
+      });
+    }
     // create new user
     const product = new Product({
-      name, 
+      name,
       desProduct,
       price,
       category
     });
     // save user to db
-    await product.save((err, product) => {
-      if (err) {
-        return res.json({ message: 'Can not save product to db' });
-      }
-      return res.json({
-        isSuccess: true,
-        product
-      });
-    });
+    await product.save();
+    return res.json({
+      isSuccess: true,
+      product
+    })
   } catch (err) {
     return res.status(400).json({
       isSuccess: false,
       message: err.message
     });
-  }
+  };
 };
 
 // update info user
 ProductController.updateProduct = async (req, res) => {
   try {
-    let productName = req.params.name;
-    let nameUpdate = req.body.name;
-    let product = await Product.find({ name: productName });
-
-    if (product.length) {
-      await Product.updateMany({ name: productName }, { name: nameUpdate });
-      return res.json({ message: 'Successful' });
+    let id = req.params.id;
+    let { name, desProduct, price, category } = req.body;
+    if (!name) {
+      return res.json({ message: 'Name is required !' });
     }
-    return res.json({ message: 'Can not find product to update' });
+    if (!desProduct) {
+      return res.json({ message: 'Description is required !' });
+    }
+    if (!price) {
+      return res.json({ message: 'Price is required !' });
+    }
+    if (!category) {
+      return res.json({ message: 'Category is required !' });
+    }
+    await Product.findByIdAndUpdate(id, req.body);
+    return res.json({
+      isSuccess: true,
+      user: req.body
+    })
   } catch (err) {
     return res.json({
-      message: 'Can not update info of product',
+      isSuccess: false,
       error: err
     });
   }
@@ -100,17 +130,16 @@ ProductController.updateProduct = async (req, res) => {
 // delete user
 ProductController.deleteProduct = async (req, res) => {
   try {
-    let productName = req.params.name;
-    await Product.findOneAndDelete({ name: productName }, (err) => {
-      if (err) {
-        return res.json({ message: err });
-      }
-      return res.json({ message: 'Successful!' });
-    });
+    let id = req.params.id;
+    if (!id) {
+      return res.json({ message: 'Id is required!' });
+    }
+    await Product.findByIdAndDelete(id);
+    return res.json({ isSuccess: true });ƒ
   } catch (err) {
     return res.json({
-      message: 'Can not delete product',
-      error: err
+      isSuccess: false,
+      error: err.message
     })
   }
 };

@@ -13,12 +13,12 @@ const router = new Router();
 
 router.get('/users', UserController.getAll);
 
-router.get('/users/:name', UserController.getUser);
+router.get('/users/:id', UserController.getUser);
 
 router.post('/users', UserController.addUser);
 
-router.put('/users/:name', UserController.updateUser);
+router.put('/users/:id', UserController.updateUser);
 
-router.delete('/users/:name', UserController.deleteUser);
+router.delete('/users/:id', UserController.deleteUser);
 
 export default router;

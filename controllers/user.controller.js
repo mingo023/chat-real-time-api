@@ -11,14 +11,13 @@ UserController.getAll = async (req, res) => {
         res.status(500).send(err);
       }
       return res.json({
-        users,
+        users
       });
     });
   } catch (err) {
     return res.status(400).json({
       isSuccess: false,
-      message: err.message,
-      error: err
+      message: err.message
     });
   }
 };
@@ -26,11 +25,11 @@ UserController.getAll = async (req, res) => {
 // get user by first name
 UserController.getUser = async (req, res) => {
   try {
-    let userName = req.params.name;
-    let user = await User.find({ firstName: userName });
-    if (!userName) {
-      return res.json({ message: 'Username is required' });
+    let id = req.params.id;
+    if (!id) {
+      return res.json({ message: 'Id is required' });
     }
+    let user = await User.findById(id);
     return res.json({ user });
   } catch (err) {
     return res.json({
@@ -46,6 +45,38 @@ UserController.addUser = async (req, res) => {
     // get properties of user 
     const { firstName, lastName, phone, age, email } = req.body;
     // validate email 
+    if (!firstName) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'First name is required field'
+        }
+      });
+    }
+    if (!lastName) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Last name is required field'
+        }
+      });
+    }
+    if (!phone) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Phone is required field'
+        }
+      });
+    }
+    if (!age) {
+      return res.status(400).json({
+        isSuccess: false,
+        error: {
+          message: 'Age is required field'
+        }
+      });
+    }
     if (!email) {
       return res.status(400).json({
         isSuccess: false,
@@ -63,57 +94,64 @@ UserController.addUser = async (req, res) => {
       email
     });
     // save user to db
-    await user.save((err, user) => {
-      if (err) {
-        return res.json({ message: 'Can not save user to db' });
-      }
-      return res.json({
-        isSuccess: true,
-        user
-      });
-    });
+    await user.save();
+    return res.json({ 
+      isSuccess: true,
+      user: user
+    })
   } catch (err) {
     return res.status(400).json({
       isSuccess: false,
-      message: err.message,
-      error: err
+      message: err.message
     });
-  }
+  };
 };
 
 // update info user
 UserController.updateUser = async (req, res) => {
   try {
-    let userName = req.params.name;
-    let nameUpdate = req.body.firstName;
-    let user = await User.find({ firstName: userName });
-
-    if (user.length) {
-      await User.updateMany({ firstName: userName }, { firstName: nameUpdate });
-      return res.json({ message: 'Successful' });
+    let id = req.params.id;
+    let { firstName, lastName, phone, age, email } = req.body;
+    if (!firstName) {
+      return res.json({ message: 'First name is required !' });
     }
-    return res.json({ message: 'Can not find user to update' });
+    if (!lastName) {
+      return res.json({ message: 'Last name is required !' });
+    }
+    if (!phone) {
+      return res.json({ message: 'Phone is required !' });
+    }
+    if (!age) {
+      return res.json({ message: 'Age is required !' });
+    }
+    if (!email) {
+      return res.json({ message: 'Email is required !' });
+    }
+    await User.findByIdAndUpdate(id, req.body);
+    return res.json({
+      isSuccess: true,
+      user: req.body
+    })
   } catch (err) {
     return res.json({
-      message: 'Can not update user',
-      error: err
-    });
+      isSuccess: false,
+      message: err.message
+    })
   }
 };
 // delete user
 UserController.deleteUser = async (req, res) => {
   try {
-    let userName = req.params.name;
-    await User.findOneAndDelete({ firstName: userName }, (err) => {
-      if (err) {
-        return res.json({ message: err });
-      }
-      return res.json({ message: 'Successful!' });
-    });
+    let id = req.params.id;
+    if (!id) {
+      return res.json({ message: 'Id is required!' });
+    }
+    await User.findByIdAndDelete(id);
+    return res.json({ isSuccess: true });
   } catch (err) {
     return res.json({
-      message: 'Can not delete user',
-      error: err
+      isSuccess: false,
+      error: err.message
     })
   }
 };
