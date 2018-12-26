@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import UserController from '../controllers/user.controller';
+import validate from 'express-validation';
+import validation from '../validation';
+
 const router = new Router();
 
 // Get all users
@@ -15,10 +18,15 @@ router.get('/users', UserController.getAll);
 
 router.get('/users/:id', UserController.getUser);
 
-router.post('/users', UserController.addUser);
+router.post('/users', validate(validation.user), UserController.addUser);
 
-router.put('/users/:id', UserController.updateUser);
+router.put('/users/:id', validate(validation.user), UserController.updateUser);
 
 router.delete('/users/:id', UserController.deleteUser);
+
+router.get('/search', (req, res) => {
+  const query = req.query;
+  return res.json({ query });
+});
 
 export default router;

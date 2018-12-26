@@ -1,0 +1,16 @@
+Validate data from client of CRUD _ Validate in Model
+Use next to handle error 
+Refact error in controller
+req.query
+-----------
+Tạo một model tên là Group:
+_id, 
+name: string(255),
+author: ObjectId,
+lastMesssage: ObjectId, 
+members: Array of objectId, 
+deleteAt: Date();
+--------------
+author: author là một id ở trong user
+* Tìm hiểu populate in mongoose: Xử lý khoá ngoại, giao tiếp giữa 2 bảng
+CRUD + Validate Joi _ validate model for group model API s

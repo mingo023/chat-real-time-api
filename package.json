@@ -18,6 +18,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
+    "express-validation": "^1.0.2",
+    "joi": "^14.3.0",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.0"
   }
