@@ -9,7 +9,7 @@ GroupController.getAll = async (req, res, next) => {
   try {
     const groups = await Group.find().sort('-dateAdded');
     if (!groups.length) { return next(new Error('Groups not found!')) };
-    return res.json({
+    return res.status(200).json({
       isSuccess: true,
       groups
     });
@@ -22,7 +22,7 @@ GroupController.getGroup = async (req, res, next) => {
   try {
     const id = req.params.id;
     const group = await Group.findOne({ _id: id });
-    return group ? res.json({ isSuccess: true, group }) : next(new Error('Group not found'));
+    return group ? res.status(200).json({ isSuccess: true, group }) : next(new Error('Group not found'));
   } catch (err) {
     return next(err);
   };
@@ -30,16 +30,19 @@ GroupController.getGroup = async (req, res, next) => {
 
 GroupController.addGroup = async (req, res, next) => {
   try {
-    const infoGroup = req.body;
-    const author = await User.findById(infoGroup.author);
-    console.log(author);
-    if (!author) {
-      return next(new Error('This author is not user'));
+    const { name, author, member } = req.body;
+
+    if (!name) {
+      return next(new Error('Name is required'));
     }
-    const group = new Group(infoGroup);
+    if (!author) {
+      return next(new Error('Author is required'));
+    }
+    
+    const group = new Group(req.body);
     // save user to db
     await group.save();
-    return res.json({
+    return res.status(200).json({
       isSuccess: true,
       group
     });
@@ -59,7 +62,7 @@ GroupController.updateGroup = async (req, res, next) => {
     }
     Object.assign(group, infoUpdate);
     await group.save();
-    return res.json({
+    return res.status(200).json({
       isSuccess: true,
       group
     });
@@ -78,7 +81,7 @@ GroupController.deleteGroup = async (req, res, next) => {
     }
     group.deleteAt = new Date();
     await group.save();
-    return res.json({ message: 'Deleted Successly!' });
+    return res.status(200).json({ message: 'Deleted Successly!' });
   } catch (err) {
     return next(err);
   }

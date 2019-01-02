@@ -13,6 +13,7 @@ let userSchema = new Schema({
     default: false
   }
 });
+
 userSchema.pre('find', function () {
   let query = this.getQuery();
   query.isDelete = false;

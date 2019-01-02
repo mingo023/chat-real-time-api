@@ -1,9 +1,24 @@
 import Joi from 'joi';
+import { model } from 'mongoose';
  
-module.exports = {
+module.exports.createGroup = {
   body: {
     name: Joi.string().required(),
-    author: Joi.string().required(),
-    members: Joi.array().items(Joi.number().valid([1, 2, 3, 4, 5]))
+    author: Joi.string().required()
   }
-};  
+};
+
+module.exports.updateGroup = {
+  body: {
+    name: Joi.string().required()
+  },
+  params: {
+    id: Joi.required()
+  }
+};
+
+module.exports.deleteGroup = {
+  params: {
+    id: Joi.required()
+  }
+}

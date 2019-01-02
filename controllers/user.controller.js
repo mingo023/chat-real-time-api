@@ -6,7 +6,7 @@ const UserController = {};
 // get all users from database
 UserController.getAll = async (req, res, next) => {
   try {
-    const users = await User.find().sort('-dateAdded');
+    const users = await User.find();
     if (!users.length) { return next(new Error('Users not found!')) };
     return res.json({
       isSuccess: true,
