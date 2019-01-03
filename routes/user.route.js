@@ -16,9 +16,9 @@ const router = new Router();
 
 router.get('/users', UserController.getAll);
 
-router.get('/users/:id', UserController.getUser);
+router.get('/users/:id', validate(validation.user.getUser), UserController.getUser);
 
-router.post('/users', validate(validation.user), UserController.addUser);
+router.post('/users', validate(validation.user.createUser), UserController.addUser);
 
 router.put('/users/:id', validate(validation.user), UserController.updateUser);
 

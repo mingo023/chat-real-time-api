@@ -1,21 +1,28 @@
 import Joi from 'joi';
-Joi.objectId = require('joi-objectid')(Joi);
 import { model } from 'mongoose';
- 
+
 module.exports.createGroup = {
   body: {
-    name: Joi.string().required(),
-    author: Joi.objectId(),
-    members: Joi.array()
+    name: Joi.string().required().min(6).max(20),
+    author: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id of user is invalid'),
+    members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
   }
 };
 
+module.exports.getGroup = {
+  params: {
+    id: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id must to be the ObjectId')
+  }
+}
+
 module.exports.updateGroup = {
   body: {
-    name: Joi.string().required()
+    name: Joi.string().min(6).max(20),
+    author: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id of user is invalid'),
+    members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
   },
   params: {
-    id: Joi.required()
+    id: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id must to be the ObjectId')
   }
 };
 

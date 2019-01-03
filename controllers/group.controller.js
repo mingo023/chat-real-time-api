@@ -4,7 +4,6 @@ import { set, Model } from 'mongoose';
 
 const GroupController = {};
 
-
 GroupController.getAll = async (req, res, next) => {
   try {
     const groups = await Group.find().sort('-dateAdded');
@@ -21,7 +20,10 @@ GroupController.getAll = async (req, res, next) => {
 GroupController.getGroup = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const group = await Group.findOne({ _id: id });
+    const group = await Group
+      .findOne({ _id: id })
+      .populate('author')
+      .populate('members');
     return group ? res.status(200).json({ isSuccess: true, group }) : next(new Error('Group not found'));
   } catch (err) {
     return next(err);
@@ -31,22 +33,15 @@ GroupController.getGroup = async (req, res, next) => {
 GroupController.addGroup = async (req, res, next) => {
   try {
     const { name, author, members } = req.body;
-
-    if (!name) {
-      return next(new Error('Name is required'));
-    }
-    if (!author) {
-      return next(new Error('Author is required'));
-    }
-    
-    const group = new Group(req.body);
+    const group = new Group({ name, author, members });
     // save user to db
-    await group.save();
+    const createdGroup = await group.save();
     return res.status(200).json({
       isSuccess: true,
-      group
+      group: createdGroup
     });
   } catch (err) {
+    console.log(err);
     return next(err);
   };
 };
@@ -55,13 +50,16 @@ GroupController.updateGroup = async (req, res, next) => {
   try {
     const id = req.params.id;
     const infoUpdate = req.body;
-
     let group = await Group.findOne({ _id: id });
+
     if (!group) {
       return next(new Error('Group not found'));
     }
+
     Object.assign(group, infoUpdate);
+
     await group.save();
+
     return res.status(200).json({
       isSuccess: true,
       group
@@ -79,13 +77,14 @@ GroupController.deleteGroup = async (req, res, next) => {
     if (!group) {
       return next(new Error('Group not found'));
     }
-    group.deleteAt = new Date();
+
+    group.deletedAt = new Date();
+    
     await group.save();
     return res.status(200).json({ message: 'Deleted Successly!' });
   } catch (err) {
     return next(err);
   }
 };
-
 
 export default GroupController;

@@ -7,7 +7,7 @@ const router = new Router();
 
 router.get('/groups', GroupController.getAll);
 
-router.get('/groups/:id', GroupController.getGroup);
+router.get('/groups/:id', validate(validation.group.getGroup) , GroupController.getGroup);
 
 router.post('/groups', validate(validation.group.createGroup), GroupController.addGroup);
 
