@@ -30,7 +30,7 @@ GroupController.getGroup = async (req, res, next) => {
 
 GroupController.addGroup = async (req, res, next) => {
   try {
-    const { name, author, member } = req.body;
+    const { name, author, members } = req.body;
 
     if (!name) {
       return next(new Error('Name is required'));

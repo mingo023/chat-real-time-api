@@ -16,10 +16,12 @@
     "nodemon": "^1.18.9"
   },
   "dependencies": {
+    "bcrypt": "^3.0.3",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "express-validation": "^1.0.2",
     "joi": "^14.3.0",
+    "joi-objectid": "^2.0.0",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.0"
   }

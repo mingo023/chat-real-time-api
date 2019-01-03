@@ -1,10 +1,12 @@
 import Joi from 'joi';
+Joi.objectId = require('joi-objectid')(Joi);
 import { model } from 'mongoose';
  
 module.exports.createGroup = {
   body: {
     name: Joi.string().required(),
-    author: Joi.string().required()
+    author: Joi.objectId(),
+    members: Joi.array()
   }
 };
 
