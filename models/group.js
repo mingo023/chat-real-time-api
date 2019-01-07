@@ -24,26 +24,26 @@ let groupSchema = new Schema({
   }
 });
 
-function checkFindUser() {
+function checkUserExist() {
   let query = this.getQuery();
   return query.deletedAt = null;
 };
 
 groupSchema.pre('find', function () {
-  checkFindUser.apply(this);  
+  checkUserExist.apply(this);  
 });
 
 groupSchema.pre('findOne', function () {
-  checkFindUser.apply(this);
+  checkUserExist.apply(this);
 });
 
 groupSchema.pre('save', async function (next) {
-
-  const user = await User.findOne({ _id: this.author });
-  if (!user) {
+  // check author exist in db  
+  const author = await User.findOne({ _id: this.author });
+  if (!author) {
     return next(new Error('Author is not exist in db'));
   }
-  
+
   const members = await User.find({ _id: this.members });
   if (members.length !== this.members.length) {
     return next(new Error('Member is not exist in db'));

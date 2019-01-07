@@ -7,13 +7,16 @@ const router = new Router();
 
 router.get('/groups', GroupController.getAll);
 
-router.get('/groups/:id', validate(validation.group.getGroup) , GroupController.getGroup);
+router.get('/groups/:id', validate(validation.group.getGroup), GroupController.getGroup);
 
 router.post('/groups', validate(validation.group.createGroup), GroupController.addGroup);
 
 router.put('/groups/:id', validate(validation.group.updateGroup), GroupController.updateGroup);
 
-router.delete('/groups/:id', validate(validation.group.deleteGroup), GroupController.deleteGroup);
+router.patch('/groups/:id', validate(validation.group.addMembers), GroupController.addMembers);
 
+router.delete('/groups/member/:id', GroupController.deleteMembers);
+
+router.delete('/groups/:id', validate(validation.group.deleteGroup), GroupController.deleteGroup);
 
 export default router;

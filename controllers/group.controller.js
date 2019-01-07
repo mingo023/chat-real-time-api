@@ -68,6 +68,53 @@ GroupController.updateGroup = async (req, res, next) => {
     return next(err);
   }
 };
+
+GroupController.addMembers = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const membersAdded = req.body.members;
+    let group = await Group.findById(id);
+    // check member từ client gửi lên đã tồn tại trong group hay chưa
+    let listMembersId = group.members.map(member => member._id.toHexString());
+    for (let id of membersAdded) {
+      if (listMembersId.includes(id)) {
+        return next(new Error('Have a member existed in group!!!'));
+      }
+    }
+    group.members = group.members.concat(membersAdded);
+    await group.save();
+    return res.status(200).json({ group });
+  } catch (err) {
+    return next(err);
+  }
+};
+
+GroupController.deleteMembers = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const group = await Group.findById(id);
+    if (!group) {
+      return res.status(400).json({
+        isSuccess: false,
+        message: 'Group not found'
+      });
+    }
+    const { mems } = req.body;
+    if (!mems) {
+      res.status(400).json({ message: 'mems is required' })
+    }
+    
+    group.members.splice(group.members.indexOf(mems), 1);
+    await group.save();
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'Deleted member'
+    });
+
+  } catch (err) {
+    return next(err);
+  }
+};
 // delete user
 GroupController.deleteGroup = async (req, res, next) => {
   try {
@@ -79,7 +126,7 @@ GroupController.deleteGroup = async (req, res, next) => {
     }
 
     group.deletedAt = new Date();
-    
+
     await group.save();
     return res.status(200).json({ message: 'Deleted Successly!' });
   } catch (err) {

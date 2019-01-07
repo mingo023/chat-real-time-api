@@ -2,6 +2,8 @@ import { Router } from 'express';
 import UserController from '../controllers/user.controller';
 import validate from 'express-validation';
 import validation from '../validation';
+import User from '../models/user';
+import authMiddleware from '../middlewares/auth.middleware';
 
 const router = new Router();
 
@@ -14,19 +16,19 @@ const router = new Router();
 // PATCH.. Update
 // ResfulAPI naming
 
-router.get('/users', UserController.getAll);
+router
+  .get('/users', authMiddleware.requireAuth, UserController.getAll)
+  .post('/users', validate(validation.user.create), authMiddleware.requireAuth, UserController.create);
 
-router.get('/users/:id', validate(validation.user.getUser), UserController.getUser);
+router
+  .get('/users/:id', validate(validation.user.get), authMiddleware.requireAuth, UserController.get)
+  .put('/users/:id', validate(validation.user), authMiddleware.requireAuth, UserController.update);
 
-router.post('/users', validate(validation.user.createUser), UserController.addUser);
+router.post('/login', validate(validation.user.login), UserController.login);
 
-router.put('/users/:id', validate(validation.user), UserController.updateUser);
+router.post('/users/password/:id', validate(validation.user.changePassword), authMiddleware.requireAuth, UserController.changePassword);
 
-router.delete('/users/:id', UserController.deleteUser);
+router.delete('/users/:id', authMiddleware.requireAuth, UserController.delete);
 
-router.get('/search', (req, res) => {
-  const query = req.query;
-  return res.json({ query });
-});
 
 export default router;
