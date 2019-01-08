@@ -24,14 +24,24 @@ let userSchema = new Schema({
     required: [true, "Password is required field"],
     maxlength: [255, 'Password is too long!']
   },
-  deletedAt: Date
+  deletedAt: Date 
 });
 
-// userSchema.pre('find', function(next) {
+function preFindMiddleware(query) {
+  return query.deletedAt = null;
+}
 
-// }); 
+userSchema.pre('find', function() {
+  const query = this.getQuery();
+  preFindMiddleware(query);
+});
 
-userSchema.post('save', function (error, doc, next) {
+userSchema.pre('findOne', function() {
+  const query = this.getQuery();
+  preFindMiddleware(query);
+});
+
+userSchema.post('save', function(error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {
     return next(new Error('this email has been using'));
   }

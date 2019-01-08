@@ -18,15 +18,15 @@ const router = new Router();
 
 router
   .get('/users', authMiddleware.requireAuth, UserController.getAll)
-  .post('/users', validate(validation.user.create), authMiddleware.requireAuth, UserController.create);
+  .post('/users', validate(validation.user.create), UserController.create);
 
 router
   .get('/users/:id', validate(validation.user.get), authMiddleware.requireAuth, UserController.get)
-  .put('/users/:id', validate(validation.user), authMiddleware.requireAuth, UserController.update);
+  .put('/users/:id', validate(validation.user.update), authMiddleware.requireAuth, UserController.update);
 
 router.post('/login', validate(validation.user.login), UserController.login);
 
-router.post('/users/password/:id', validate(validation.user.changePassword), authMiddleware.requireAuth, UserController.changePassword);
+router.put('/users/password/change-password', validate(validation.user.changePassword), authMiddleware.requireAuth, UserController.changePassword);
 
 router.delete('/users/:id', authMiddleware.requireAuth, UserController.delete);
 

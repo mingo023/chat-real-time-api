@@ -1,6 +1,5 @@
 import User from '../models/user';
 import { set, Model } from 'mongoose';
-import md5 from 'md5';
 import JWT from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
@@ -10,8 +9,15 @@ const UserController = {};
 
 UserController.getAll = async (req, res, next) => {
   try {
-    const users = await User.find();
-    if (!users.length) { return next(new Error('Users not found!')) };
+    const users = await User
+      .find({})
+      .select('-password')
+      .lean(true);
+
+    if (!users.length) {
+      return next(new Error('Users not found!'))
+    };
+
     return res.status(200).json({
       isSuccess: true,
       users
@@ -24,8 +30,18 @@ UserController.getAll = async (req, res, next) => {
 UserController.get = async (req, res, next) => {
   try {
     const _id = req.params.id;
-    const user = await User.findOne({ _id });
-    return user ? res.status(200).json({ isSuccess: true, user }) : next(new Error('User not found'));
+    const user = await User.findById(_id)
+      .select('-password')
+      .lean(true);
+
+    if (!user) {
+      return next(new Error('User not found!'));
+    }
+
+    return res.status(200).json({
+      isSuccess: true,
+      user
+    });
   } catch (err) {
     return next(err);
   };
@@ -57,18 +73,19 @@ UserController.update = async (req, res, next) => {
   try {
     const _id = req.params.id;
     const data = req.body;
-    const user = await User.findOne({ _id });
+    const user = await User.findById(_id)
+      .select('-password')
+      .lean(true);
+
     if (!user) {
       return next(new Error('User not found'));
     }
-    if (data.password !== undefined) {
-      data.password = md5(data.password);
-    }
-    user.set(data);
-    await user.save();
+
+    await User.updateOne({ _id }, { $set: data });
+
     return res.status(200).json({
       isSuccess: true,
-      user
+      user: { ...user, ...data }
     });
   } catch (err) {
     return next(err);
@@ -78,13 +95,11 @@ UserController.update = async (req, res, next) => {
 UserController.delete = async (req, res, next) => {
   try {
     const _id = req.params.id;
-    let user = await User.findOne({ _id });
-
+    const user = await User.findById(_id).lean(true);
     if (!user) {
       return next(new Error('User not found'));
     }
-    user.isDelete = true;
-    await user.save();
+    await User.updateOne({ _id }, { $set: { deletedAt: new Date() } });
     return res.status(200).json({ message: 'Deleted Successly!' });
   } catch (err) {
     return next(err);
@@ -94,18 +109,20 @@ UserController.delete = async (req, res, next) => {
 UserController.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User
+      .findOne({ email })
+      .lean(true);
     if (!user) {
       return next(new Error('User not found!'));
     }
 
-    const isCorrectPassword = await bcrypt.compare(password, user._doc.password);
+    const isCorrectPassword = await bcrypt.compare(password, user.password);
     if (!isCorrectPassword) {
       return next(new Error('Password is incorrect!'));
     }
 
-    delete user._doc.password;
-    const token = await JWT.sign(user._doc, process.env.KEY_JWT);
+    delete user.password;
+    const token = await JWT.sign(user, process.env.KEY_JWT);
     return res.status(200).json({
       isSuccess: true,
       user,
@@ -118,23 +135,22 @@ UserController.login = async (req, res, next) => {
 
 UserController.changePassword = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const { oldPassword, newPassword, confirmedPassword } = req.body;
-    const user = await User.findOne({ _id });
-    const isCorrectPassword = await bcrypt.compare(oldPassword, user._doc.password);
+    const { _id, password } = req.infoUser;
+    const { currentPassword, newPassword, confirmedPassword } = req.body;
 
-    if (!isCorrectPassword) {
-      return next(new Error('Old password is incorrect!'));
-    }
     if (newPassword !== confirmedPassword) {
       return next(new Error('Password does not match!'));
     }
-    if (oldPassword === newPassword) {
-      return next(new Error('New password must be different from old password!'));
+    if (currentPassword === newPassword) {
+      return next(new Error('New password must be different from current password!'));
     }
+    const isCorrectPassword = await bcrypt.compare(currentPassword, password);
+    if (!isCorrectPassword) {
+      return next(new Error('Current password is incorrect!'));
+    }
+    
     const hashPassword = await bcrypt.hash(newPassword, saltRounds);
-    user.password = hashPassword;
-    await user.save();
+    await User.updateOne({ _id }, { $set: { password: hashPassword } });
     return res
       .status(200)
       .json({

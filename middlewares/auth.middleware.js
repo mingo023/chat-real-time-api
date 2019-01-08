@@ -3,16 +3,23 @@ import User from '../models/user';
 
 module.exports.requireAuth = async (req, res, next) => {
   try {
-    const { token } = req.headers;
+    const { token } = req.headers || req.body || req.query;
     if (!token) {
       return next(new Error('Not found authentication'));
     }
-    const data = await JWT.verify(token, '77yIw21VsG');
-    const _id = data._id;
-    const user = await User.findById(_id);
-    if (!user) {
-      return next(new Error('User not found'));
+    const tokens = token.split('Bearer ');
+    if (tokens.length !== 2 || tokens[0] !== '') {
+      return next(new Error('Not authentication format!'));
     }
+    const authToken = tokens[1];
+    const data = await JWT.verify(authToken, process.env.KEY_JWT);
+    const _id = data._id;
+    const infoUser = await User.findById(_id).select('_id password').lean(true);
+    if (!infoUser) {
+      return next(new Error('User is not valid'));
+    }
+    // pass data to next middleware
+    req.infoUser = infoUser;
     next();
   } catch (err) {
     return next(err);
