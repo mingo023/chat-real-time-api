@@ -135,7 +135,7 @@ UserController.login = async (req, res, next) => {
 
 UserController.changePassword = async (req, res, next) => {
   try {
-    const { _id, password } = req.infoUser;
+    const { _id, password } = req.user;
     const { currentPassword, newPassword, confirmedPassword } = req.body;
 
     if (newPassword !== confirmedPassword) {
@@ -144,11 +144,12 @@ UserController.changePassword = async (req, res, next) => {
     if (currentPassword === newPassword) {
       return next(new Error('New password must be different from current password!'));
     }
+
     const isCorrectPassword = await bcrypt.compare(currentPassword, password);
     if (!isCorrectPassword) {
       return next(new Error('Current password is incorrect!'));
     }
-    
+
     const hashPassword = await bcrypt.hash(newPassword, saltRounds);
     await User.updateOne({ _id }, { $set: { password: hashPassword } });
     return res
@@ -156,7 +157,7 @@ UserController.changePassword = async (req, res, next) => {
       .json({
         isSuccess: true,
         message: 'Password was changed'
-      })
+      });
   } catch (err) {
     return next(err);
   }

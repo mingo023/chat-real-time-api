@@ -14,12 +14,12 @@ module.exports.requireAuth = async (req, res, next) => {
     const authToken = tokens[1];
     const data = await JWT.verify(authToken, process.env.KEY_JWT);
     const _id = data._id;
-    const infoUser = await User.findById(_id).select('_id password').lean(true);
-    if (!infoUser) {
+    const user = await User.findById(_id).select('_id password').lean(true);
+    if (!user) {
       return next(new Error('User is not valid'));
     }
     // pass data to next middleware
-    req.infoUser = infoUser;
+    req.user = user;
     next();
   } catch (err) {
     return next(err);

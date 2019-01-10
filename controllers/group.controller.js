@@ -6,7 +6,24 @@ const GroupController = {};
 
 GroupController.getAll = async (req, res, next) => {
   try {
-    const groups = await Group.find().sort('-dateAdded');
+    const { page, limit } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const groups = await Group
+      .find()
+      .sort('-dateAdded')
+      .populate([
+        {
+          path: 'author',
+          select: '-password'
+        },
+        {
+          path: 'members',
+          select: '-password'
+        }
+      ])
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(true);
     if (!groups.length) { return next(new Error('Groups not found!')) };
     return res.status(200).json({
       isSuccess: true,
@@ -17,36 +34,50 @@ GroupController.getAll = async (req, res, next) => {
   }
 };
 
-GroupController.getGroup = async (req, res, next) => {
+GroupController.get = async (req, res, next) => {
   try {
     const id = req.params.id;
     const group = await Group
       .findOne({ _id: id })
-      .populate('author')
-      .populate('members');
-    return group ? res.status(200).json({ isSuccess: true, group }) : next(new Error('Group not found'));
+      .populate([
+        {
+          path: 'author',
+          select: '-password'
+        },
+        {
+          path: 'members',
+          select: '-password'
+        }
+      ])
+      .lean(true);
+    if (!group) {
+      return next(new Error('Group not found!'));
+    }
+    return res.status(200).json({
+      isSuccess: true,
+      group
+    });
   } catch (err) {
     return next(err);
   };
 };
 
-GroupController.addGroup = async (req, res, next) => {
+GroupController.create = async (req, res, next) => {
   try {
     const { name, author, members } = req.body;
     const group = new Group({ name, author, members });
     // save user to db
-    const createdGroup = await group.save();
+    await group.save();
     return res.status(200).json({
       isSuccess: true,
-      group: createdGroup
+      group
     });
   } catch (err) {
-    console.log(err);
     return next(err);
   };
 };
 
-GroupController.updateGroup = async (req, res, next) => {
+GroupController.update = async (req, res, next) => {
   try {
     const id = req.params.id;
     const infoUpdate = req.body;
@@ -103,7 +134,7 @@ GroupController.deleteMembers = async (req, res, next) => {
     if (!mems) {
       res.status(400).json({ message: 'mems is required' })
     }
-    
+
     group.members.splice(group.members.indexOf(mems), 1);
     await group.save();
     return res.status(200).json({
@@ -116,7 +147,7 @@ GroupController.deleteMembers = async (req, res, next) => {
   }
 };
 // delete user
-GroupController.deleteGroup = async (req, res, next) => {
+GroupController.delete = async (req, res, next) => {
   try {
     const id = req.params.id;
     let group = await Group.findById(id);
