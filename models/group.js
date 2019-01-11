@@ -17,12 +17,12 @@ let groupSchema = new Schema({
     type: Schema.Types.ObjectId,
     default: new ObjectId()
   },
-  members: [{type: Schema.Types.ObjectId, ref: 'User'}],
+  members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   deletedAt: {
     type: Date,
     default: null
   }
-});
+}, { timestamps: { createdAt: 'createdAt' } });
 
 function checkUserExist() {
   let query = this.getQuery();
@@ -30,7 +30,7 @@ function checkUserExist() {
 };
 
 groupSchema.pre('find', function () {
-  checkUserExist.apply(this);  
+  checkUserExist.apply(this);
 });
 
 groupSchema.pre('findOne', function () {
@@ -48,7 +48,7 @@ groupSchema.pre('save', async function (next) {
   if (members.length !== this.members.length) {
     return next(new Error('Member is not exist in db'));
   }
-  
+
 });
 
 let Group = mongoose.model('Group', groupSchema);

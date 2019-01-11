@@ -23,6 +23,7 @@ GroupController.getAll = async (req, res, next) => {
       ])
       .skip(skip)
       .limit(parseInt(limit))
+      .sort({ _id: 1 })
       .lean(true);
     if (!groups.length) { return next(new Error('Groups not found!')) };
     return res.status(200).json({

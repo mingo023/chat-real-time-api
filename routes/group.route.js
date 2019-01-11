@@ -6,7 +6,7 @@ import validation from '../validation';
 const router = new Router();
 
 router
-  .get('/groups', GroupController.getAll)
+  .get('/groups', validate(validation.group.getAll), GroupController.getAll)
   .post('/groups', validate(validation.group.createGroup), GroupController.create);
 
 router.get('/groups/:id', validate(validation.group.getGroup), GroupController.get)
