@@ -3,7 +3,8 @@ import Joi from 'joi';
 module.exports.create = {
   body: {
     messeages: Joi.string().min(1).max(255),
-    group: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id must to be the ObjectId')
+    group: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id must to be the ObjectId'),
+    author: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id must to be the ObjectId')
   }
 };
 

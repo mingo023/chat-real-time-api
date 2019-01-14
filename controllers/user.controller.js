@@ -73,19 +73,14 @@ UserController.update = async (req, res, next) => {
   try {
     const _id = req.params.id;
     const data = req.body;
-    const user = await User.findById(_id)
-      .select('-password')
-      .lean(true);
-
+    const user  = await User.findOneAndUpdate({ _id }, { $set: data });
     if (!user) {
       return next(new Error('User not found'));
     }
 
-    await User.updateOne({ _id }, { $set: data });
-
     return res.status(200).json({
       isSuccess: true,
-      user: { ...user, ...data }
+      user: { ...user._doc , ...data }
     });
   } catch (err) {
     return next(err);

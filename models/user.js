@@ -24,21 +24,22 @@ let userSchema = new Schema({
     required: [true, "Password is required field"],
     maxlength: [255, 'Password is too long!']
   },
-  deletedAt: Date 
-});
+  deletedAt: {
+    type: Date,
+    default: null
+  }
+}, { timestamps: { createdAt: 'createdAt' } });
 
 function preFindMiddleware(query) {
   return query.deletedAt = null;
 }
 
 userSchema.pre('find', function() {
-  const query = this.getQuery();
-  preFindMiddleware(query);
+  preFindMiddleware(this.getQuery());
 });
 
 userSchema.pre('findOne', function() {
-  const query = this.getQuery();
-  preFindMiddleware(query);
+  preFindMiddleware(this.getQuery());
 });
 
 userSchema.post('save', function(error, doc, next) {

@@ -1,5 +1,4 @@
 import Group from '../models/group';
-import User from '../models/user';
 import { set, Model } from 'mongoose';
 
 const GroupController = {};
@@ -37,9 +36,9 @@ GroupController.getAll = async (req, res, next) => {
 
 GroupController.get = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const _id = req.params.id;
     const group = await Group
-      .findOne({ _id: id })
+      .findOne({ _id })
       .populate([
         {
           path: 'author',
@@ -65,9 +64,30 @@ GroupController.get = async (req, res, next) => {
 
 GroupController.create = async (req, res, next) => {
   try {
-    const { name, author, members } = req.body;
-    const group = new Group({ name, author, members });
-    // save user to db
+    const { name, author, members, type } = req.body;
+    members.unshift(author);
+    if (type === 'Private') {
+      if (members.length > 2) {
+        return next(new Error('Members is too long!'));
+      }
+      const isGroupPrivateExist = await Group
+        .findOne({
+          author,
+          members: { $all: members }
+        })
+        .lean() !== null;
+      if (isGroupPrivateExist) {
+        return next(new Error('This private group is exist!'));
+      }
+    }
+
+    const group = new Group({
+      name,
+      author,
+      members,
+      type
+    });
+
     await group.save();
     return res.status(200).json({
       isSuccess: true,
@@ -80,21 +100,17 @@ GroupController.create = async (req, res, next) => {
 
 GroupController.update = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    const _id = req.params.id;
     const infoUpdate = req.body;
-    let group = await Group.findOne({ _id: id });
+    const group = await Group.findOneAndUpdate({ _id }, { $set: infoUpdate });
 
     if (!group) {
       return next(new Error('Group not found'));
     }
 
-    Object.assign(group, infoUpdate);
-
-    await group.save();
-
     return res.status(200).json({
       isSuccess: true,
-      group
+      group: { ...group._doc, ...infoUpdate}
     });
   } catch (err) {
     return next(err);

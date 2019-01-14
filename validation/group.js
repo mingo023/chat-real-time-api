@@ -19,7 +19,8 @@ module.exports.createGroup = {
   body: {
     name: Joi.string().required().min(6).max(20),
     author: Joi.string().regex(/^[0-9a-fA-F]{24}$/, 'Id of user must to be objectId'),
-    members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/))
+    members: Joi.array().items(Joi.string().regex(/^[0-9a-fA-F]{24}$/)),
+    type: Joi.string().required()
   }
 };
 

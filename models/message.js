@@ -24,23 +24,20 @@ const messageSchema = new Schema({
   }
 }, { timestamps: { createdAt: 'createdAt' } });
 
-function findMiddleware(query) {
+function preFindMiddleware(query) {
   return query.deletedAt = null;
-};
+}
 
 messageSchema.pre('find', function() {
-  const query = this.getQuery();
-  findMiddleware(query);
+  preFindMiddleware(this.getQuery());
 });
 
 messageSchema.pre('findOne', function() {
-  const query = this.getQuery();
-  query.deletedAt = null;
+  preFindMiddleware(this.getQuery());
 });
 
 messageSchema.pre('findOneAndUpdate', function() {
-  const query = this.getQuery();
-  query.deletedAt = null;
+  preFindMiddleware(this.getQuery());
 });
 
 messageSchema.pre('save', async function (next) {
@@ -49,7 +46,10 @@ messageSchema.pre('save', async function (next) {
   if (!author) {
     return next(new Error('Author is not exist in db'));
   }
-  
+  const group = await Group.findOne({ _id: this.group });
+  if (!group) {
+    return next(new Error('Group is not exist in db'));
+  }
 });
 
 const Message = mongoose.model('Message', messageSchema);
