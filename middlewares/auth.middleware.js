@@ -1,5 +1,6 @@
 import JWT from 'jsonwebtoken';
 import User from '../models/user';
+import { userRepository } from '../repositories';
 
 module.exports.requireAuth = async (req, res, next) => {
   try {
@@ -13,8 +14,13 @@ module.exports.requireAuth = async (req, res, next) => {
     }
     const authToken = tokens[1];
     const data = await JWT.verify(authToken, process.env.KEY_JWT);
-    const _id = data._id;
-    const user = await User.findById(_id).select('_id password').lean(true);
+
+    const options = {
+      where: { _id: data._id },
+      select: '_id password',
+      lean: true
+    }
+    const user = await userRepository.get(options);
     if (!user) {
       return next(new Error('User is not valid'));
     }

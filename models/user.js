@@ -42,6 +42,10 @@ userSchema.pre('findOne', function() {
   preFindMiddleware(this.getQuery());
 });
 
+userSchema.pre('findOneAndUpdate', function() {
+  preFindMiddleware(this.getQuery());
+});
+
 userSchema.post('save', function(error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {
     return next(new Error('this email has been using'));

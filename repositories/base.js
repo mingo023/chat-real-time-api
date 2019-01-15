@@ -1,0 +1,84 @@
+export default class BaseRepository {
+  constructor(model) {
+    this.model = model
+  }
+
+  getAll(options = {}) {
+    const newOptions = {
+      limit: 2,
+      page: 1,
+      where: {},
+      sort: {
+        _id: -1
+      },
+      lean: false,
+      ...options
+    };
+    if (newOptions.limit > 5) {
+      newOptions.limit = 5
+    }
+    newOptions.skip = (newOptions.page - 1) * newOptions.limit;
+    if (newOptions.populate) {
+      return this
+        .model
+        .find(newOptions.where)
+        .skip(newOptions.skip)
+        .limit(newOptions.limit)
+        .populate(newOptions.populate)
+        .select(newOptions.select)
+        .lean(newOptions.lean);
+    }
+    return this
+      .model
+      .find(newOptions.where)
+      .skip(newOptions.skip)
+      .limit(newOptions.limit)
+      .select(newOptions.select)
+      .lean(newOptions.lean);
+  };
+
+  get(options = {}) {
+    const newOptions = {
+      limit: 2,
+      page: 1,
+      where: {},
+      sort: {
+        _id: -1
+      },
+      lean: false,
+      ...options
+    };
+    if (newOptions.limit > 5) {
+      newOptions.limit = 5
+    }
+    newOptions.skip = (newOptions.page - 1) * newOptions.limit;
+    if (newOptions.populate) {
+      return this
+        .model
+        .findOne(newOptions.where)
+        .skip(newOptions.skip)
+        .limit(newOptions.limit)
+        .populate(newOptions.populate)
+        .select(newOptions.select)
+        .lean(newOptions.lean);
+    }
+    return this
+      .model
+      .findOne(newOptions.where)
+      .skip(newOptions.skip)
+      .limit(newOptions.limit)
+      .select(newOptions.select)
+      .lean(newOptions.lean);
+  };
+
+  findOneAndUpdate(options = {}) {
+    const newOptions = { 
+      ...options
+    };
+
+    return this
+      .model
+      .findOneAndUpdate(newOptions.where, newOptions.data)
+      .lean(newOptions.lean);
+  }
+}

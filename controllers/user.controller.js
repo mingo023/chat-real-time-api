@@ -1,27 +1,28 @@
+import { userRepository } from '../repositories';
 import User from '../models/user';
-import { set, Model } from 'mongoose';
 import JWT from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 
+import bcrypt from 'bcrypt';
 const saltRounds = 10;
+
+import { ResponseHandler } from '../helper';
 
 const UserController = {};
 
 UserController.getAll = async (req, res, next) => {
   try {
-    const users = await User
-      .find({})
-      .select('-password')
-      .lean(true);
+    const options = {
+      lean: true,
+      select: '-password'
+    }
+    const users = await userRepository.getAll(options);
 
     if (!users.length) {
       return next(new Error('Users not found!'))
     };
 
-    return res.status(200).json({
-      isSuccess: true,
-      users
-    });
+    return ResponseHandler.returnSuccess(res, { users });
+
   } catch (err) {
     return next(err);
   }
@@ -29,19 +30,20 @@ UserController.getAll = async (req, res, next) => {
 
 UserController.get = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const user = await User.findById(_id)
-      .select('-password')
-      .lean(true);
 
+    const options = {
+      where: { _id: req.params.id },
+      select: '-password',
+      lean: true
+    };
+
+    const user = await userRepository.get(options);
     if (!user) {
       return next(new Error('User not found!'));
     }
 
-    return res.status(200).json({
-      isSuccess: true,
-      user
-    });
+    return ResponseHandler.returnSuccess(res, { user });
+
   } catch (err) {
     return next(err);
   };
@@ -49,6 +51,7 @@ UserController.get = async (req, res, next) => {
 
 UserController.create = async (req, res, next) => {
   try {
+
     const { gender, fullName, email, password } = req.body;
     const hashPassword = await bcrypt.hash(password, saltRounds);
     const user = new User({
@@ -60,10 +63,9 @@ UserController.create = async (req, res, next) => {
     // save user to db
     await user.save();
     delete user._doc.password;
-    return res.status(200).json({
-      isSuccess: true,
-      user
-    });
+
+    return ResponseHandler.returnSuccess(res, { user });
+
   } catch (err) {
     return next(err);
   };
@@ -71,17 +73,20 @@ UserController.create = async (req, res, next) => {
 
 UserController.update = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const data = req.body;
-    const user  = await User.findOneAndUpdate({ _id }, { $set: data });
+
+    const options = {
+      where: { _id: req.params.id },
+      data: { $set: req.body },
+      lean: true
+    }
+
+    const user = await userRepository.findOneAndUpdate(options);
     if (!user) {
       return next(new Error('User not found'));
     }
 
-    return res.status(200).json({
-      isSuccess: true,
-      user: { ...user._doc , ...data }
-    });
+    return ResponseHandler.returnSuccess(res, { message: 'Updated user successly!' });
+
   } catch (err) {
     return next(err);
   }
@@ -89,13 +94,18 @@ UserController.update = async (req, res, next) => {
 
 UserController.delete = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const user = await User.findById(_id).lean(true);
-    if (!user) {
-      return next(new Error('User not found'));
+
+    const options = {
+      where: { _id: req.params.id },
+      data: { $set: { deletedAt: new Date() } },
+      lean: true
     }
-    await User.updateOne({ _id }, { $set: { deletedAt: new Date() } });
-    return res.status(200).json({ message: 'Deleted Successly!' });
+    const user = await userRepository.findOneAndUpdate(options);
+    if (!user) {
+      return next(new Error('User not found!'));
+    }
+    return ResponseHandler.returnSuccess(res, { message: 'Updated user successly!' });
+
   } catch (err) {
     return next(err);
   }
@@ -103,10 +113,13 @@ UserController.delete = async (req, res, next) => {
 
 UserController.login = async (req, res, next) => {
   try {
+
     const { email, password } = req.body;
-    const user = await User
-      .findOne({ email })
-      .lean(true);
+    const options = {
+      where: { email },
+      lean: true
+    };
+    const user = await userRepository.get(options);
     if (!user) {
       return next(new Error('User not found!'));
     }
@@ -118,11 +131,11 @@ UserController.login = async (req, res, next) => {
 
     delete user.password;
     const token = await JWT.sign(user, process.env.KEY_JWT);
-    return res.status(200).json({
-      isSuccess: true,
+    return ResponseHandler.returnSuccess(res, {
       user,
       token
     });
+
   } catch (err) {
     return next(err);
   }
@@ -130,6 +143,7 @@ UserController.login = async (req, res, next) => {
 
 UserController.changePassword = async (req, res, next) => {
   try {
+    
     const { _id, password } = req.user;
     const { currentPassword, newPassword, confirmedPassword } = req.body;
 
@@ -147,12 +161,9 @@ UserController.changePassword = async (req, res, next) => {
 
     const hashPassword = await bcrypt.hash(newPassword, saltRounds);
     await User.updateOne({ _id }, { $set: { password: hashPassword } });
-    return res
-      .status(200)
-      .json({
-        isSuccess: true,
-        message: 'Password was changed'
-      });
+
+    return ResponseHandler.returnSuccess(res, { message: 'Your password have been changed!' });
+
   } catch (err) {
     return next(err);
   }
