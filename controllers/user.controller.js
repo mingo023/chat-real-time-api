@@ -52,16 +52,15 @@ UserController.get = async (req, res, next) => {
 UserController.create = async (req, res, next) => {
   try {
 
-    const { gender, fullName, email, password } = req.body;
-    const hashPassword = await bcrypt.hash(password, saltRounds);
-    const user = new User({
-      gender,
-      fullName,
-      email,
+    const hashPassword = await bcrypt.hash(req.body.password, saltRounds);
+    const data = {
+      ...req.body,
       password: hashPassword
-    });
-    // save user to db
+    };
+
+    const user = userRepository.create(data);
     await user.save();
+
     delete user._doc.password;
 
     return ResponseHandler.returnSuccess(res, { user });
@@ -143,7 +142,7 @@ UserController.login = async (req, res, next) => {
 
 UserController.changePassword = async (req, res, next) => {
   try {
-    
+
     const { _id, password } = req.user;
     const { currentPassword, newPassword, confirmedPassword } = req.body;
 

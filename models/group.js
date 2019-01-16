@@ -18,7 +18,7 @@ let groupSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ['Public', 'Private']
+    enum: ['public', 'private']
   },
   members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   deletedAt: {
@@ -51,7 +51,6 @@ groupSchema.pre('save', async function (next) {
   if (members.length !== this.members.length) {
     return next(new Error('Member is not exist in db'));
   }
-  
 
 });
 

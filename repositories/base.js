@@ -38,20 +38,16 @@ export default class BaseRepository {
   };
 
   get(options = {}) {
+
     const newOptions = {
-      limit: 2,
-      page: 1,
       where: {},
       sort: {
         _id: -1
       },
       lean: false,
       ...options
-    };
-    if (newOptions.limit > 5) {
-      newOptions.limit = 5
-    }
-    newOptions.skip = (newOptions.page - 1) * newOptions.limit;
+    }; 
+
     if (newOptions.populate) {
       return this
         .model
@@ -61,7 +57,7 @@ export default class BaseRepository {
         .populate(newOptions.populate)
         .select(newOptions.select)
         .lean(newOptions.lean);
-    }
+    };
     return this
       .model
       .findOne(newOptions.where)
@@ -72,13 +68,13 @@ export default class BaseRepository {
   };
 
   findOneAndUpdate(options = {}) {
-    const newOptions = { 
-      ...options
-    };
-
     return this
       .model
-      .findOneAndUpdate(newOptions.where, newOptions.data)
-      .lean(newOptions.lean);
+      .findOneAndUpdate(options.where, options.data)
+      .lean(options.lean);
+  }
+
+  create(data = {}) {
+    return new this.model(data);
   }
 }

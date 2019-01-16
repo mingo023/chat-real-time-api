@@ -1,16 +1,17 @@
 import Group from '../models/group';
 import { set, Model } from 'mongoose';
+import { groupRepository } from '../repositories';
+import { ResponseHandler } from '../helper';
+
 
 const GroupController = {};
 
 GroupController.getAll = async (req, res, next) => {
   try {
-    const { page, limit } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const groups = await Group
-      .find()
-      .sort('-dateAdded')
-      .populate([
+
+    const options = {
+      ...req.body,
+      populate: [
         {
           path: 'author',
           select: '-password'
@@ -19,16 +20,15 @@ GroupController.getAll = async (req, res, next) => {
           path: 'members',
           select: '-password'
         }
-      ])
-      .skip(skip)
-      .limit(parseInt(limit))
-      .sort({ _id: 1 })
-      .lean(true);
+      ],
+      lean: true
+    };
+
+    const groups = await groupRepository.getAll(options);
     if (!groups.length) { return next(new Error('Groups not found!')) };
-    return res.status(200).json({
-      isSuccess: true,
-      groups
-    });
+
+    return ResponseHandler.returnSuccess(res, { groups });
+
   } catch (err) {
     return next(err);
   }
@@ -36,10 +36,10 @@ GroupController.getAll = async (req, res, next) => {
 
 GroupController.get = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const group = await Group
-      .findOne({ _id })
-      .populate([
+
+    const options = {
+      where: { _id: req.params.id },
+      populate: [
         {
           path: 'author',
           select: '-password'
@@ -48,15 +48,17 @@ GroupController.get = async (req, res, next) => {
           path: 'members',
           select: '-password'
         }
-      ])
-      .lean(true);
+      ],
+      lean: true
+    };
+
+    const group = await groupRepository.get(options);
     if (!group) {
       return next(new Error('Group not found!'));
     }
-    return res.status(200).json({
-      isSuccess: true,
-      group
-    });
+
+    return ResponseHandler.returnSuccess(res, { group });
+
   } catch (err) {
     return next(err);
   };
@@ -64,35 +66,41 @@ GroupController.get = async (req, res, next) => {
 
 GroupController.create = async (req, res, next) => {
   try {
-    const { name, author, members, type } = req.body;
+
+    const { members } = req.body;
+    const author = req.user._id;
+    
     members.unshift(author);
-    if (type === 'Private') {
-      if (members.length > 2) {
+    const data = {
+      ...req.body,
+      author,
+      members,
+      type: members.length > 2 ? 'public' : 'private'
+    };
+
+    const options = {
+      where: {
+        author: data.author,
+        members: { $all: data.members }
+      },
+      lean: true
+    };
+    // members.unshift(author);
+    if (data.type === 'private') {
+      if (data.members.length > 2) {
         return next(new Error('Members is too long!'));
       }
-      const isGroupPrivateExist = await Group
-        .findOne({
-          author,
-          members: { $all: members }
-        })
-        .lean() !== null;
+      const isGroupPrivateExist = await groupRepository.get(options) !== null;
       if (isGroupPrivateExist) {
         return next(new Error('This private group is exist!'));
       }
     }
 
-    const group = new Group({
-      name,
-      author,
-      members,
-      type
-    });
-
+    const group = groupRepository.create(data);
     await group.save();
-    return res.status(200).json({
-      isSuccess: true,
-      group
-    });
+
+    return ResponseHandler.returnSuccess(res, { group });
+
   } catch (err) {
     return next(err);
   };
@@ -100,18 +108,19 @@ GroupController.create = async (req, res, next) => {
 
 GroupController.update = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const infoUpdate = req.body;
-    const group = await Group.findOneAndUpdate({ _id }, { $set: infoUpdate });
+  
+    const options = {
+      where: { _id: req.params.id },
+      data: { $set: req.body }
+    };
+    const group = await groupRepository.findOneAndUpdate(options);
 
     if (!group) {
       return next(new Error('Group not found'));
     }
 
-    return res.status(200).json({
-      isSuccess: true,
-      group: { ...group._doc, ...infoUpdate}
-    });
+    return ResponseHandler.returnSuccess(res, { group: { ...group._doc, ...req.body }})
+
   } catch (err) {
     return next(err);
   }
@@ -119,19 +128,30 @@ GroupController.update = async (req, res, next) => {
 
 GroupController.addMembers = async (req, res, next) => {
   try {
-    const id = req.params.id;
+    
     const membersAdded = req.body.members;
-    let group = await Group.findById(id);
-    // check member từ client gửi lên đã tồn tại trong group hay chưa
-    let listMembersId = group.members.map(member => member._id.toHexString());
-    for (let id of membersAdded) {
-      if (listMembersId.includes(id)) {
-        return next(new Error('Have a member existed in group!!!'));
-      }
+    const isMembersExisted = await groupRepository.get({
+      where: {
+        _id: req.params.id,
+        members: { $in: membersAdded }
+      },
+      select: '_id',
+      lean: true
+    }) !== null;
+    
+    if (isMembersExisted) {
+      return next(new Error('Members added is already existed in this group!'));
     }
+    const group = await groupRepository.get({
+      where: { _id: req.params.id },
+      select: 'author members'
+    });
+
     group.members = group.members.concat(membersAdded);
     await group.save();
-    return res.status(200).json({ group });
+
+    return ResponseHandler.returnSuccess(res, { group });
+
   } catch (err) {
     return next(err);
   }
@@ -139,43 +159,54 @@ GroupController.addMembers = async (req, res, next) => {
 
 GroupController.deleteMembers = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    const group = await Group.findById(id);
-    if (!group) {
-      return res.status(400).json({
-        isSuccess: false,
-        message: 'Group not found'
-      });
-    }
-    const { mems } = req.body;
-    if (!mems) {
-      res.status(400).json({ message: 'mems is required' })
-    }
+    // const id = req.params.id;
+    // const group = await Group.findById(id);
+    // if (!group) {
+    //   return res.status(400).json({
+    //     isSuccess: false,
+    //     message: 'Group not found'
+    //   });
+    // }
+    // const { mems } = req.body;
+    // if (!mems) {
+    //   res.status(400).json({ message: 'mems is required' })
+    // }
 
-    group.members.splice(group.members.indexOf(mems), 1);
-    await group.save();
-    return res.status(200).json({
-      isSuccess: true,
-      message: 'Deleted member'
+    // group.members.splice(group.members.indexOf(mems), 1);
+    // await group.save();
+    // return res.status(200).json({
+    //   isSuccess: true,
+    //   message: 'Deleted member'
+    // });
+    const _id = req.params.id;
+    const group = await groupRepository.get({
+      where: { _id }
     });
+    if (!group) {
+      return next(new Error('Group not found!'));
+    }
+    const { member } = req.body;
+    group.members.splice(group.members.indexOf(member), 1);
+    await group.save();
+    return ResponseHandler.returnSuccess(res, { group });
 
   } catch (err) {
     return next(err);
   }
 };
-// delete user
+
 GroupController.delete = async (req, res, next) => {
   try {
-    const id = req.params.id;
-    let group = await Group.findById(id);
+    const options = {
+      where: { _id: req.params.id },
+      data: { $set: { deletedAt: new Date() } }
+    }
+    let group = await groupRepository.findOneAndUpdate(options);
 
     if (!group) {
       return next(new Error('Group not found'));
     }
 
-    group.deletedAt = new Date();
-
-    await group.save();
     return res.status(200).json({ message: 'Deleted Successly!' });
   } catch (err) {
     return next(err);
