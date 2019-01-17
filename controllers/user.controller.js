@@ -103,7 +103,7 @@ UserController.delete = async (req, res, next) => {
     if (!user) {
       return next(new Error('User not found!'));
     }
-    return ResponseHandler.returnSuccess(res, { message: 'Updated user successly!' });
+    return ResponseHandler.returnSuccess(res, { message: 'Deleted user successly!' });
 
   } catch (err) {
     return next(err);

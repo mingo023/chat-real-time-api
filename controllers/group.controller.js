@@ -1,6 +1,6 @@
 import Group from '../models/group';
 import { set, Model } from 'mongoose';
-import { groupRepository } from '../repositories';
+import { messageRepository, groupRepository } from '../repositories';
 import { ResponseHandler } from '../helper';
 
 
@@ -85,7 +85,7 @@ GroupController.create = async (req, res, next) => {
       },
       lean: true
     };
-    // members.unshift(author);
+    
     if (data.type === 'private') {
       if (data.members.length > 2) {
         return next(new Error('Members is too long!'));
@@ -111,7 +111,8 @@ GroupController.update = async (req, res, next) => {
   
     const options = {
       where: { _id: req.params.id },
-      data: { $set: req.body }
+      data: { $set: req.body },
+      lean: true
     };
     const group = await groupRepository.findOneAndUpdate(options);
 
@@ -159,25 +160,7 @@ GroupController.addMembers = async (req, res, next) => {
 
 GroupController.deleteMembers = async (req, res, next) => {
   try {
-    // const id = req.params.id;
-    // const group = await Group.findById(id);
-    // if (!group) {
-    //   return res.status(400).json({
-    //     isSuccess: false,
-    //     message: 'Group not found'
-    //   });
-    // }
-    // const { mems } = req.body;
-    // if (!mems) {
-    //   res.status(400).json({ message: 'mems is required' })
-    // }
-
-    // group.members.splice(group.members.indexOf(mems), 1);
-    // await group.save();
-    // return res.status(200).json({
-    //   isSuccess: true,
-    //   message: 'Deleted member'
-    // });
+    
     const _id = req.params.id;
     const group = await groupRepository.get({
       where: { _id }
@@ -186,8 +169,11 @@ GroupController.deleteMembers = async (req, res, next) => {
       return next(new Error('Group not found!'));
     }
     const { member } = req.body;
+
     group.members.splice(group.members.indexOf(member), 1);
+
     await group.save();
+
     return ResponseHandler.returnSuccess(res, { group });
 
   } catch (err) {
@@ -197,17 +183,27 @@ GroupController.deleteMembers = async (req, res, next) => {
 
 GroupController.delete = async (req, res, next) => {
   try {
-    const options = {
-      where: { _id: req.params.id },
-      data: { $set: { deletedAt: new Date() } }
-    }
-    let group = await groupRepository.findOneAndUpdate(options);
-
+    const optionsGroup = {
+      where: {
+        _id: req.params.id,
+        author: req.user._id
+      },
+      data: { $set: { deletedAt: new Date() } },
+      lean: true
+    };
+    const group = await groupRepository.findOneAndUpdate(optionsGroup);
     if (!group) {
       return next(new Error('Group not found'));
     }
+    const optionsMessage = {
+      where: { group: group._id },
+      data: { $set: { deletedAt: new Date() } },
+      lean: true
+    };
 
-    return res.status(200).json({ message: 'Deleted Successly!' });
+    await messageRepository.findOneAndUpdate(optionsMessage);
+    
+    return ResponseHandler.returnSuccess(res, { message: 'Deleted group Successly!' });
   } catch (err) {
     return next(err);
   }

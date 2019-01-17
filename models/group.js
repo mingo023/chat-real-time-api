@@ -27,17 +27,20 @@ let groupSchema = new Schema({
   }
 }, { timestamps: { createdAt: 'createdAt' } });
 
-function checkUserExist() {
-  let query = this.getQuery();
+function preFindMiddleware(query) {
   return query.deletedAt = null;
 };
 
 groupSchema.pre('find', function () {
-  checkUserExist.apply(this);
+  preFindMiddleware(this.getQuery());
 });
 
 groupSchema.pre('findOne', function () {
-  checkUserExist.apply(this);
+  preFindMiddleware(this.getQuery());
+});
+
+groupSchema.pre('findOneAndUpdate', function() {
+  preFindMiddleware(this.getQuery());
 });
 
 groupSchema.pre('save', async function (next) {

@@ -1,29 +1,32 @@
+import { messageRepository, groupRepository } from '../repositories';
 import Message from '../models/message';
 import { set, Model } from 'mongoose';
-import Group from '../models/group';
+import { ResponseHandler } from '../helper';
 
 const MessageController = {};
 
 MessageController.getAll = async (req, res, next) => {
   try {
-    const messages = await Message
-      .find()
-      .populate([
+
+    const options = {
+      populate: [
         {
           path: 'author',
-          select: '-password'
+          select: '-password',
         },
         {
-          path: 'group',
+          path: 'group'
         }
-      ])
-      .sort({ createdAt: -1 })
-      .lean(true);
+      ],
+      lean: true
+    };
+
+    const messages = await messageRepository.getAll(options);
+
     if (!messages.length) { return next(new Error('Messages not found!')) };
-    return res.status(200).json({
-      isSuccess: true,
-      messages
-    });
+
+    return ResponseHandler.returnSuccess(res, { messages });
+
   } catch (err) {
     return next(err);
   }
@@ -31,10 +34,10 @@ MessageController.getAll = async (req, res, next) => {
 
 MessageController.get = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const message = await Message
-      .findOne({ _id })
-      .populate([
+
+    const options = {
+      where: { _id: req.params.id },
+      populate: [
         {
           path: 'author',
           select: '-password'
@@ -42,15 +45,14 @@ MessageController.get = async (req, res, next) => {
         {
           path: 'group'
         }
-      ])
-      .lean(true);
+      ],
+      lean: true
+    };
+    const message = await messageRepository.get(options);
     if (!message) {
       return next(new Error('Message not found!'));
     }
-    return res.status(200).json({
-      isSuccess: true,
-      message
-    });
+    return ResponseHandler.returnSuccess(res, { message });
   } catch (err) {
     return next(err);
   };
@@ -60,22 +62,20 @@ MessageController.create = async (req, res, next) => {
   try {
     const author = req.user._id;
     const { messages, group } = req.body;
-    const member = await Group
-      .findOne({
+    const member = await groupRepository.get({ //check the user is exist in this group ??
+      where: {
         _id: group,
         members: author
-      });
+      }
+    });
     if (!member) {
       return next(new Error('You is not exist in this group!'));
     }
-    
-    const message = new Message({ author, messages, group });
+
+    const message = messageRepository.create({ author, messages, group });
     await message.save();
 
-    return res.status(200).json({
-      isSuccess: true,
-      message
-    });
+    return ResponseHandler.returnSuccess(res, { message });
   } catch (err) {
     return next(err);
   };
@@ -83,17 +83,23 @@ MessageController.create = async (req, res, next) => {
 
 MessageController.update = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const updateMessage = req.body;
 
-    const message = await Message.findOneAndUpdate({ _id }, { $set: updateMessage });
+    const options = {
+      where: { 
+        _id: req.params.id,
+        author: req.user._id //check the message is created by this user
+      },
+      data: { $set: req.body },
+      lean: true
+    };
+    const message = await messageRepository.findOneAndUpdate(options);
+
     if (!message) {
       return next(new Error('Message not found!'));
     }
-    return res.status(200).json({
-      isSuccess: true,
-      message: 'Updated successful'
-    });
+
+    return ResponseHandler.returnSuccess(res, { message: { ...message, ...req.body } });
+
   } catch (err) {
     return next(err);
   }
@@ -101,15 +107,19 @@ MessageController.update = async (req, res, next) => {
 
 MessageController.delete = async (req, res, next) => {
   try {
-    const _id = req.params.id;
-    const message = await Message.findOneAndUpdate({ _id }, { $set: { deletedAt: new Date() } });
+    const options = {
+      where: {
+        _id: req.params.id,
+        author: req.user._id
+      },
+      data: { $set: { deletedAt: new Date() } },
+      lean: true
+    }
+    const message = await messageRepository.findOneAndUpdate(options);
     if (!message) {
       return next(new Error('Message not found!'))
     }
-    return res.status(200).json({
-      isSuccess: true,
-      message: 'Deleted Successly!'
-    });
+    return ResponseHandler.returnSuccess(res, { message: 'Deleted message successly!' });
   } catch (err) {
     return next(err);
   }
