@@ -7,6 +7,7 @@ import connectToDb from './db/connect';
 import user from './routes/user.route';
 import group from './routes/group.route';
 import message from './routes/messsage.route';
+import upload from './routes/upload.route';
 
 const server = express();
 
@@ -17,9 +18,13 @@ server.use(bodyParser.urlencoded({
   extended: false
 }));
 
+// server.use(express.static('public'));
+
 server.use(user);
 server.use(group);
 server.use(message);
+server.use(upload);
+
 server.use((e, req, res, next) => {
   return res.status(400).json({
     isSuccess: false,
