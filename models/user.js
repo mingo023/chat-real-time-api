@@ -24,6 +24,18 @@ let userSchema = new Schema({
     required: [true, "Password is required field"],
     maxlength: [255, 'Password is too long!']
   },
+  isBlock: {
+    type: Boolean,
+    default: false
+  },
+  lastUploaded: {
+    type: Date,
+    default: new Date()
+  },
+  countUpload: {
+    type: Number,
+    default: 0
+  },
   deletedAt: {
     type: Date,
     default: null
