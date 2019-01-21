@@ -18,7 +18,7 @@ server.use(bodyParser.urlencoded({
   extended: false
 }));
 
-// server.use(express.static('public'));
+server.use(express.static('public'));
 
 server.use(user);
 server.use(group);

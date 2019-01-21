@@ -5,7 +5,7 @@ import UploadController from '../controllers/upload.controller';
 
 
 router
-  .get('/', UploadController.getUpload)
-  .post('/', UploadController.postUpload);
+  .get('/upload', UploadController.getFile)
+  .post('/upload', UploadController.postFile);
 
 export default router;

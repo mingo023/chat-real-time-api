@@ -11,10 +11,12 @@ const UserController = {};
 
 UserController.getAll = async (req, res, next) => {
   try {
+
     const options = {
       lean: true,
       select: '-password'
     }
+    
     const users = await userRepository.getAll(options);
 
     if (!users.length) {
