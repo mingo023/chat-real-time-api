@@ -27,7 +27,7 @@ GroupController.getAll = async (req, res, next) => {
     const groups = await groupRepository.getAll(options);
     if (!groups.length) { return next(new Error('Groups not found!')) };
 
-    return ResponseHandler.returnSuccess(res, { groups });
+    return ResponseHandler.returnSuccess(res, groups);
 
   } catch (err) {
     return next(err);
@@ -57,7 +57,7 @@ GroupController.get = async (req, res, next) => {
       return next(new Error('Group not found!'));
     }
 
-    return ResponseHandler.returnSuccess(res, { group });
+    return ResponseHandler.returnSuccess(res, group);
 
   } catch (err) {
     return next(err);
@@ -99,7 +99,7 @@ GroupController.create = async (req, res, next) => {
     const group = groupRepository.create(data);
     await group.save();
 
-    return ResponseHandler.returnSuccess(res, { group });
+    return ResponseHandler.returnSuccess(res, group);
 
   } catch (err) {
     return next(err);
@@ -151,7 +151,7 @@ GroupController.addMembers = async (req, res, next) => {
     group.members = group.members.concat(membersAdded);
     await group.save();
 
-    return ResponseHandler.returnSuccess(res, { group });
+    return ResponseHandler.returnSuccess(res, group);
 
   } catch (err) {
     return next(err);
@@ -174,7 +174,7 @@ GroupController.deleteMembers = async (req, res, next) => {
 
     await group.save();
 
-    return ResponseHandler.returnSuccess(res, { group });
+    return ResponseHandler.returnSuccess(res, group);
 
   } catch (err) {
     return next(err);

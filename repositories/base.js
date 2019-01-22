@@ -74,6 +74,12 @@ export default class BaseRepository {
       .lean(options.lean);
   }
 
+  updateOne(option = {}) {
+    return this 
+      .model
+      .updateOne(option.where, option.data)
+  }
+
   create(data = {}) {
     return new this.model(data);
   }

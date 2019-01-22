@@ -25,7 +25,7 @@ MessageController.getAll = async (req, res, next) => {
 
     if (!messages.length) { return next(new Error('Messages not found!')) };
 
-    return ResponseHandler.returnSuccess(res, { messages });
+    return ResponseHandler.returnSuccess(res, messages);
 
   } catch (err) {
     return next(err);
@@ -52,7 +52,7 @@ MessageController.get = async (req, res, next) => {
     if (!message) {
       return next(new Error('Message not found!'));
     }
-    return ResponseHandler.returnSuccess(res, { message });
+    return ResponseHandler.returnSuccess(res, message);
   } catch (err) {
     return next(err);
   };
@@ -75,7 +75,7 @@ MessageController.create = async (req, res, next) => {
     const message = messageRepository.create({ author, messages, group });
     await message.save();
 
-    return ResponseHandler.returnSuccess(res, { message });
+    return ResponseHandler.returnSuccess(res, message);
   } catch (err) {
     return next(err);
   };

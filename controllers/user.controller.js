@@ -24,7 +24,7 @@ UserController.getAll = async (req, res, next) => {
       return next(new Error('Users not found!'))
     };
 
-    return ResponseHandler.returnSuccess(res, { users });
+    return ResponseHandler.returnSuccess(res, users);
 
   } catch (err) {
     return next(err);
@@ -45,7 +45,7 @@ UserController.get = async (req, res, next) => {
       return next(new Error('User not found!'));
     }
 
-    return ResponseHandler.returnSuccess(res, { user });
+    return ResponseHandler.returnSuccess(res, user);
 
   } catch (err) {
     return next(err);
@@ -66,7 +66,7 @@ UserController.create = async (req, res, next) => {
 
     delete user._doc.password;
 
-    return ResponseHandler.returnSuccess(res, { user });
+    return ResponseHandler.returnSuccess(res, user);
 
   } catch (err) {
     return next(err);
@@ -162,7 +162,13 @@ UserController.changePassword = async (req, res, next) => {
     }
 
     const hashPassword = await bcrypt.hash(newPassword, saltRounds);
-    await User.updateOne({ _id }, { $set: { password: hashPassword } });
+    
+    const options = {
+      where: { _id },
+      data: { $set: { password: hashPassword } }
+    };
+
+    await userRepository.updateOne(options);
 
     return ResponseHandler.returnSuccess(res, { message: 'Your password have been changed!' });
 
@@ -176,6 +182,7 @@ UserController.forgotPassword = async (req, res, next) => {
     const email = req.body.email;
     const user = await userRepository.get({
       where: { email: email },
+      select: '_id',
       lean: true
     });
 
@@ -193,13 +200,13 @@ UserController.forgotPassword = async (req, res, next) => {
         user: 'nvminh023@gmail.com',
         pass: process.env.PASS_SMTP
       }
-    });
+    }); 
 
     const mailOptions = {
       from: '"Minh"',
       to: email,
       subject: 'Reset Your Password',
-      html: `<b>localhost:3000/forgot-password/${token}</b>`
+      html: `<b><a href="localhost:3000/forgot-password/${token}">Link</a></b>`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -229,7 +236,7 @@ UserController.resetPassword = async (req, res, next) => {
     });
 
     if (!user) {
-      return next(new Error('User not valid'));
+      return next(new Error('Cannot reset password'));
     };
 
     return ResponseHandler.returnSuccess(res, {

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+// import { ResponseHandler } from '../helper';
 let Schema = mongoose.Schema;
 
 let userSchema = new Schema({
@@ -28,7 +29,7 @@ let userSchema = new Schema({
     type: Date,
     default: null
   },
-  lastUploaded: {
+  startUpload: {
     type: Date,
     default: new Date()
   },
@@ -46,19 +47,19 @@ function preFindMiddleware(query) {
   return query.deletedAt = null;
 }
 
-userSchema.pre('find', function() {
+userSchema.pre('find', function () {
   preFindMiddleware(this.getQuery());
 });
 
-userSchema.pre('findOne', function() {
+userSchema.pre('findOne', function () {
   preFindMiddleware(this.getQuery());
 });
 
-userSchema.pre('findOneAndUpdate', function() {
+userSchema.pre('findOneAndUpdate', function () {
   preFindMiddleware(this.getQuery());
 });
 
-userSchema.post('save', function(error, doc, next) {
+userSchema.post('save', function (error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {
     return next(new Error('this email has been using'));
   }
