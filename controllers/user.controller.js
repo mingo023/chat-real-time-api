@@ -172,35 +172,72 @@ UserController.changePassword = async (req, res, next) => {
 };
 
 UserController.forgotPassword = async (req, res, next) => {
-
-  const transporter = nodeMailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'nvminh023@gmail.com',
-      pass: process.env.PASS_SMTP
-    }
-  });
-
-  const mailOptions = {
-    from: '"Minh" <nvminh023@gmail.com>',
-    to: req.body.to,
-    subject: req.body.subject,
-    html: `<b>${req.body.body}</b>`
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-
-    if (error) {
-      return next(err);
-    }
-
-    return ResponseHandler.returnSuccess(res, {
-      message: 'Successly'
+  try {
+    const email = req.body.email;
+    const user = await userRepository.get({
+      where: { email: email },
+      lean: true
     });
 
-  });
+    if (!user) {
+      return next(new Error('User not found!'));
+    };
+
+    const token = await JWT.sign(user, process.env.KEY_JWT);
+
+    const transporter = nodeMailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: 'nvminh023@gmail.com',
+        pass: process.env.PASS_SMTP
+      }
+    });
+
+    const mailOptions = {
+      from: '"Minh"',
+      to: email,
+      subject: 'Reset Your Password',
+      html: `<b>localhost:3000/forgot-password/${token}</b>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return next(error);
+      }
+      return ResponseHandler.returnSuccess(res, {
+        message: 'Successly'
+      });
+    });
+
+  } catch(err) {
+    return next(err);
+  }
+} 
+
+UserController.resetPassword = async (req, res, next) => {
+  try {
+
+    const token = req.params.token;
+    const newPassword = req.body.password;
+    const data = await JWT.verify(token, process.env.KEY_JWT);
+    const hashPassword = await bcrypt.hash(newPassword, saltRounds);
+    const user = await userRepository.findOneAndUpdate({
+      where: { _id: data._id },
+      data: { $set: { password: hashPassword }}
+    });
+
+    if (!user) {
+      return next(new Error('User not valid'));
+    };
+
+    return ResponseHandler.returnSuccess(res, {
+      message: 'Successly!'
+    });
+  } catch (err) {
+    return next(err);
+  }
 
 };
 
