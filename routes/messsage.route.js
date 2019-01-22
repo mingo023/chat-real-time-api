@@ -8,12 +8,12 @@ const router = new Router();
 
 router
   .get('/messages', authMiddleware.requireAuth, MessageController.getAll)
-  .post('/messages', validate(validation.message.create), authMiddleware.requireAuth, MessageController.create);
+  .post('/messages', validate(validation.message.create()), authMiddleware.requireAuth, MessageController.create);
 
 router
-  .get('/messages/:id', validate(validation.message.get), authMiddleware.requireAuth, MessageController.get)
-  .put('/messages/:id', validate(validation.message.update), authMiddleware.requireAuth, MessageController.update);
+  .get('/messages/:id', validate(validation.message.get()), authMiddleware.requireAuth, MessageController.get)
+  .put('/messages/:id', validate(validation.message.update()), authMiddleware.requireAuth, MessageController.update);
 
-router.delete('/messages/:id', validate(validation.message.update), authMiddleware.requireAuth, MessageController.delete);
+router.delete('/messages/:id', validate(validation.message.update()), authMiddleware.requireAuth, MessageController.delete);
 
 export default router;

@@ -1,6 +1,7 @@
 import { userRepository } from '../repositories';
 import User from '../models/user';
 import JWT from 'jsonwebtoken';
+import nodeMailer from 'nodemailer';
 
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
@@ -16,7 +17,7 @@ UserController.getAll = async (req, res, next) => {
       lean: true,
       select: '-password'
     }
-    
+
     const users = await userRepository.getAll(options);
 
     if (!users.length) {
@@ -168,6 +169,39 @@ UserController.changePassword = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
+};
+
+UserController.forgotPassword = async (req, res, next) => {
+
+  const transporter = nodeMailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'nvminh023@gmail.com',
+      pass: process.env.PASS_SMTP
+    }
+  });
+
+  const mailOptions = {
+    from: '"Minh" <nvminh023@gmail.com>',
+    to: req.body.to,
+    subject: req.body.subject,
+    html: `<b>${req.body.body}</b>`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+
+    if (error) {
+      return next(err);
+    }
+
+    return ResponseHandler.returnSuccess(res, {
+      message: 'Successly'
+    });
+
+  });
+
 };
 
 export default UserController;

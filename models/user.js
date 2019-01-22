@@ -24,9 +24,9 @@ let userSchema = new Schema({
     required: [true, "Password is required field"],
     maxlength: [255, 'Password is too long!']
   },
-  isBlock: {
-    type: Boolean,
-    default: false
+  blockedAt: {
+    type: Date,
+    default: null
   },
   lastUploaded: {
     type: Date,
