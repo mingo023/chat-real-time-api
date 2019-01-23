@@ -1,15 +1,5 @@
 import Joi from 'joi';
 
-// module.exports.create = ;
-
-// module.exports.get =
-
-//   module.exports.update =
-
-//   module.exports.login =
-
-//   module.exports.changePassword = 
-
 export default class UserValidation {
 
   create() {
@@ -67,9 +57,7 @@ export default class UserValidation {
   forgetPassword() {
     return {
       body: {
-        to: Joi.string().email().min(8).max(30).required(),
-        subject: Joi.string().min(8).max(255),
-        body: Joi.string().min(8).max(500)
+        email: Joi.string().email().min(8).max(30).required()
       }
     }
   };
