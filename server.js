@@ -4,10 +4,10 @@ import bodyParser from 'body-parser';
 
 import connectToDb from './db/connect';
 
-import user from './routes/user.route';
-import group from './routes/group.route';
-import message from './routes/messsage.route';
-import upload from './routes/upload.route';
+import user from './routes/user-route';
+import group from './routes/group-route';
+import message from './routes/messsage-route';
+import upload from './routes/upload-route';
 
 const server = express();
 
