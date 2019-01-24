@@ -13,12 +13,12 @@ module.exports.checkBlock = async (req, res, next) => {
 
     if (user.blockedAt) {//check hết thời gian block ? set lại mặc định : trả về lỗi
 
-      if ((new Date() - user.blockedAt) / 1000 / 60 > 2) { 
+      if ((new Date() - user.blockedAt) / 1000 / 60 > 10) { 
         user.countUpload = 0;
         user.blockedAt = null;
         user.startUpload = new Date();
       } else {
-        return next(new Error(`You was blocked, pls wait ${2 - (new Date() - user.blockedAt) / 1000 / 60} mins`));
+        return next(new Error(`You was blocked, pls wait ${10 - (new Date() - user.blockedAt) / 1000 / 60} mins`));
       }
 
     } else {

@@ -39,7 +39,11 @@ let userSchema = new Schema({
   },
   codeResetPassword: {
     type: String,
-    
+    default: null
+  },
+  genCodeAt: {
+    type: Date,
+    default: null
   },
   deletedAt: {
     type: Date,

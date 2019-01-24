@@ -177,8 +177,8 @@ export default class UserController {
 
   static async forgotPassword(req, res, next) {
     try {
-      const email = req.body.email;
 
+      const email = req.body.email;
       const user = await userRepository.get({
         where: { email: email },
         select: '_id'
@@ -186,14 +186,27 @@ export default class UserController {
       if (!user) {
         return next(new Error('User not found!'));
       };
-      const randomCode = Math.random().toString(36).substring(2,7);
+
+      let randomCode = Math.random().toString(36).substring(2,7).toUpperCase();
+      const isExistCode = await userRepository.get({
+        where: { codeResetPassword: randomCode },
+        select: '_id',
+        lean: true
+      });
+      if (isExistCode) {
+        randomCode = Math.random().toString(36).substring(2,7).toUpperCase();
+      }
+
+      user.codeResetPassword = randomCode;
+      user.genCodeAt = new Date();
+      user.save();
 
       await MailService.sendMail(
         'Ngo Minh',
         email,
         'Reset Your Password',
         'reset password',
-        `<p>Hãy nhập mã code nào vào form để đặt lại mật khẩu mới <h1>${randomCode}</h1></p>`
+        `<p>Hãy nhập mã code nào vào form để đặt lại mật khẩu mới <h1 style="color:red">${randomCode}</h1></p>`
       );
       return ResponseHandler.returnSuccess(res, {
         message: 'Successly!'
@@ -206,18 +219,35 @@ export default class UserController {
   static async resetPassword(req, res, next) {
     try {
 
-      const token = req.params.token;
-      const newPassword = req.body.password;
-      const data = await JWT.verify(token, process.env.KEY_JWT);
-      const hashPassword = await bcrypt.hash(newPassword, saltRounds);
-      const user = await userRepository.findOneAndUpdate({
-        where: { _id: data._id },
-        data: { $set: { password: hashPassword } }
-      });
+      const { code, newPassword, confirmedPassword } = req.body;
 
+      const user = await userRepository.get({
+        where: { codeResetPassword: code },
+        select: 'password genCodeAt'
+      });
       if (!user) {
         return next(new Error('Cannot reset password'));
       };
+
+      const isOverTime = (new Date() - user.genCodeAt) / 1000 / 60 > 5;
+      if (isOverTime) {
+        return next(new Error('This code is expired!'));
+      }
+
+      if (newPassword !== confirmedPassword) {
+        return next(new Error('Password doest not match!'));
+      }
+      const isMatchOldPassword = await bcrypt.compare(newPassword, user.password);
+      if (isMatchOldPassword) {
+        return next(new Error('New password must be difference from old password!'));
+      };
+
+      const hashPassword = await bcrypt.hash(newPassword, saltRounds);
+      
+      user.password = hashPassword;
+      user.codeResetPassword = null;
+      user.genCodeAt = null;
+      user.save();
 
       return ResponseHandler.returnSuccess(res, {
         message: 'Successly!'

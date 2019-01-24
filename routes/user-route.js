@@ -16,9 +16,9 @@ router
 
 router.post('/login', validate(validation.user.login()), UserController.login);
 
-router
-  .get('/forgot-password/:token', UserController.resetPassword)
-  .post('/forgot-password', UserController.forgotPassword);
+router.post('/reset-password', UserController.resetPassword);
+
+router.post('/forgot-password', UserController.forgotPassword);
 
 router.put('/users/password/change-password', validate(validation.user.changePassword()), authMiddleware.requireAuth, UserController.changePassword);
 
