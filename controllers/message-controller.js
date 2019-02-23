@@ -55,7 +55,9 @@ export default class MessageController {
     };
   };
 
-  static async create(req, res, next) {
+  static async create(req, res, next = (e) => {
+    return Promise.reject(e);
+  }) {
     try {
       const author = req.user._id;
       const { messages, group } = req.body;
@@ -68,11 +70,13 @@ export default class MessageController {
       if (!member) {
         return next(new Error('You is not exist in this group!'));
       }
-  
+      
       const message = messageRepository.create({ author, messages, group });
       await message.save();
-  
-      return ResponseHandler.returnSuccess(res, message);
+      if (res) {
+        return ResponseHandler.returnSuccess(res, message);
+      }
+      return message;
     } catch (err) {
       return next(err);
     }

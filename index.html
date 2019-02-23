@@ -1,12 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+
 <head>
-    <title>Simple Upload Example</title>
+	<title>Socket.IO chat</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font: 13px Helvetica, Arial;
+		}
+
+		form {
+			background: #000;
+			padding: 3px;
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+		}
+
+		form input {
+			border: 0;
+			padding: 10px;
+			width: 90%;
+			margin-right: .5%;
+		}
+
+		form button {
+			width: 9%;
+			background: rgb(130, 224, 255);
+			border: none;
+			padding: 10px;
+		}
+
+		#messages {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		#messages li {
+			padding: 5px 10px;
+		}
+
+		#messages li:nth-child(odd) {
+			background: #eee;
+		}
+		.group {
+			transition: all .5s;
+		}
+		.group:hover {
+			background-color: bisque;
+		};
+		
+	</style>
 </head>
-<body>
-    <form action="/" enctype="multipart/form-data" method="post">
-        <input type="file" name="upload" multiple>
-        <input type="submit" value="Upload">
-    </form>
+
+<body onload="getGroup()">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-4">
+				<ul class="list-group mt-3">
+					<!-- <li class="list-group-item group">Nhóm 1</li> -->
+					
+				</ul>
+			</div>
+			<div class="col-8">
+					<ul id="messages" class="list-group-item mt-3"></ul>
+			</div>
+		</div>
+	</div>
+
+	
+	<form action="/" onsubmit="return false" name="messages">
+		<input id="m" autocomplete="off" /><button onclick="sendMessage()">Send</button>
+		<button onclick="createGroup()" class="btn btn-primary">Create group</button>
+	</form>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
+	<!-- <script src="https://code.jquery.com/jquery-1.11.1.js"></script> -->
+	<script>
+		const socket = io('http://localhost:3000?token=Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1YzQ5NzkwYmQxZTJkOTAzYmRmZmJkMzIiLCJibG9ja2VkQXQiOm51bGwsInN0YXJ0VXBsb2FkIjoiMjAxOS0wMS0yNFQwODozNjoxNS4zNDhaIiwiY291bnRVcGxvYWQiOjAsImNvZGVSZXNldFBhc3N3b3JkIjoiYWJjMSIsImdlbkNvZGVBdCI6bnVsbCwiZGVsZXRlZEF0IjpudWxsLCJnZW5kZXIiOnRydWUsImZ1bGxOYW1lIjp7ImZpcnN0IjoiTWluaCIsImxhc3QiOiJOZ28ifSwiZW1haWwiOiJpbmZvOUBnbWFpbC5jb20iLCJjcmVhdGVkQXQiOiIyMDE5LTAxLTI0VDA4OjM2OjI3Ljg0NloiLCJ1cGRhdGVkQXQiOiIyMDE5LTAxLTI0VDA4OjM2OjI3Ljg0NloiLCJfX3YiOjAsImlhdCI6MTU1MDc1MzIzNn0.ASw_wyUZdKUIqwxxHFlE7VC2U94PXftshQRo_0qiv_I');
+		function sendMessage() {
+			let message = document.getElementById('m').value;
+			message = message.trim();
+			if (message) {
+				socket.emit('sendingMessage', {
+					message: message
+				},
+				function (error, data) {
+					if (error) {
+						console.log(error);
+						return alert(error);
+					}
+					console.log(data);
+				}
+			);
+				document.getElementById('m').value = '';
+			}
+		}
+		function createGroup() {
+			socket.emit('creatingGroup', {
+					authorId: 'A',
+					name: 'Chem gio',
+					members: ['5c497dae7d09bd058859265f'],
+					type: 'private'
+				},
+				function (error, data) {
+					if (error) {
+						console.log(error);
+						return alert(error);
+					}
+					console.log(data);
+				}
+			);
+		};
+
+		function getGroup() {
+			socket.emit('gettingGroup', {});
+		};
+
+
+		socket.on('gettingGroup', function(data) {
+			console.log(data);
+			let group = document.querySelector('.list-group');
+			for (let item of data) {
+				const li = document.createElement("li");
+				li.appendChild(document.createTextNode(item.name));
+				li.classList.add('list-group-item');
+				li.classList.add('group');
+				group.appendChild(li);	
+			};
+		});
+
+		socket.on('sendingMessage', function(data) {
+			let ulElement = document.getElementById('messages');
+			const li = document.createElement("li");
+			li.appendChild(document.createTextNode(data.message));
+			ulElement.appendChild(li);
+		});
+		socket.on('error', function (error) {
+			console.log(error);
+		});
+	</script>
 </body>
+
 </html>

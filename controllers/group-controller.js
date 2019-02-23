@@ -1,5 +1,6 @@
 import { messageRepository, groupRepository } from '../repositories';
 import { ResponseHandler } from '../helper';
+import { Socket } from 'dgram';
 
 export default class GroupController {
   static async getAll(req, res, next) {
@@ -60,12 +61,14 @@ export default class GroupController {
     }
   };
 
-  static async create(req, res, next) {
+  static async create(req, res, next = (e) => {
+    return Promise.reject(e);
+  }) {
     try {
   
       const { members } = req.body;
       const author = req.user._id;
-      
+
       members.unshift(author);
       const data = {
         ...req.body,
@@ -73,7 +76,7 @@ export default class GroupController {
         members,
         type: members.length > 2 ? 'public' : 'private'
       };
-  
+    
       const options = {
         where: {
           author: data.author,
@@ -94,9 +97,10 @@ export default class GroupController {
   
       const group = groupRepository.create(data);
       await group.save();
-  
-      return ResponseHandler.returnSuccess(res, group);
-  
+      if (res) {
+        return ResponseHandler.returnSuccess(res, group);
+      }
+      return group;
     } catch (err) {
       return next(err);
     };
@@ -200,6 +204,22 @@ export default class GroupController {
       await messageRepository.findOneAndUpdate(optionsMessage);
       
       return ResponseHandler.returnSuccess(res, { message: 'Deleted group Successly!' });
+    } catch (err) {
+      return next(err);
+    }
+  };
+  static async getGroupByUser(req, res, next) {
+    try {
+      
+      const options = {
+        where: { members: req.user._id },
+        lean: true
+      };
+      const groups = await groupRepository.getAll(options);
+      if (res) {
+        return ResponseHandler.returnSuccess(res, groups);
+      }
+      return groups;
     } catch (err) {
       return next(err);
     }

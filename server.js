@@ -9,7 +9,12 @@ import group from './routes/group-route';
 import message from './routes/messsage-route';
 import upload from './routes/upload-route';
 
+import { initSocket } from './socket-handler';
+
 const server = express();
+
+const http = require('http').Server(server);
+initSocket(http);
 
 connectToDb();
 
@@ -25,6 +30,10 @@ server.use(group);
 server.use(message);
 server.use(upload);
 
+server.get('/', function (req, res) {
+  res.sendFile(__dirname + '/index.html');
+});
+
 server.use((e, req, res, next) => {
   return res.status(400).json({
     isSuccess: false,
@@ -33,7 +42,7 @@ server.use((e, req, res, next) => {
   });
 });
 
-server.listen(3000, () => {
+http.listen(3000, () => {
   console.log('Server started at: 3000');
 });
 

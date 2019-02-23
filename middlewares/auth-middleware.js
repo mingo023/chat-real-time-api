@@ -1,10 +1,10 @@
 import JWT from 'jsonwebtoken';
-import User from '../models/user';
 import { userRepository } from '../repositories';
 
 module.exports.requireAuth = async (req, res, next) => {
   try {
-    const { token } = req.headers || req.body || req.query;
+    const { socket } = req;
+    const { token } = req.query ||req.headers || req.body;
     if (!token) {
       return next(new Error('Not found authentication'));
     }
@@ -26,7 +26,10 @@ module.exports.requireAuth = async (req, res, next) => {
     }
     // pass data to next middleware
     req.user = user;
-    next();
+    if (socket) {
+      socket.user = user;
+    }
+    return next();
   } catch (err) {
     return next(err);
   }

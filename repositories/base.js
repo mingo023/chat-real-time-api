@@ -80,6 +80,12 @@ export default class BaseRepository {
       .updateOne(option.where, option.data)
   }
 
+  aggregate(option = []) {
+    return this
+      .model
+      .aggregate(option)
+  }
+  
   create(data = {}) {
     return new this.model(data);
   }
