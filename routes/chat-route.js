@@ -5,10 +5,10 @@ import { requireAuth } from '../middlewares/auth-middleware';
 
 const router = new Router();
 
-// router
-//   .get('/', requireAuth, ChatController.chat);
 router
-  .get('/chat/login', ChatController.login);
+  .get('/chat', AuthController.auth, ChatController.chat);
+router  
+  .post('/login', AuthController.postLogin);
   
 
 

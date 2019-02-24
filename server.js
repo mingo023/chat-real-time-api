@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 
 import connectToDb from './db/connect';
 
-import chat from './routes/chat-route';
+
 /** 
   @API
 **/
@@ -14,6 +14,8 @@ import { apiGroupRoute,
   apiUploadRoute,
   apiUserRoute 
 } from './api/routes';
+
+import chat from './routes/chat-route';
 
 import { initSocket } from './socket-handler';
 
@@ -33,7 +35,6 @@ server.use(bodyParser.urlencoded({
 server.use(express.static('public'));
 
 
-
 /** 
   @API
 **/
@@ -41,6 +42,8 @@ server.use('/api', apiUserRoute);
 server.use('/api', apiGroupRoute);
 server.use('/api', apiMessageRoute);
 server.use('/api', apiUploadRoute);
+
+server.use(chat);
 
 server.use((e, req, res, next) => {
   return res.status(400).json({
