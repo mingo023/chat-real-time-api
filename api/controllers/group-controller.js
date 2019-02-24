@@ -1,6 +1,5 @@
-import { messageRepository, groupRepository } from '../repositories';
-import { ResponseHandler } from '../helper';
-import { Socket } from 'dgram';
+import { messageRepository, groupRepository } from '../../repositories';
+import { ResponseHandler } from '../../helper';
 
 export default class GroupController {
   static async getAll(req, res, next) {

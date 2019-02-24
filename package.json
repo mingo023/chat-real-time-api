@@ -16,8 +16,10 @@
     "nodemon": "^1.18.9"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "bcrypt": "^3.0.3",
     "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.4",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "express-validation": "^1.0.2",

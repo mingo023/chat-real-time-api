@@ -1,8 +1,8 @@
-import GroupController from '../controllers/group-controller';
+import { GroupController } from '../api/controllers';
 
 export default class GroupHandler {
   static initEvent(socket) {
-    socket.on('creatingGroup', async function(data, callback) {
+    socket.on('creatingGroup', async function (data, callback) {
       try {
         const group = await GroupController.create({
           user: socket.user,
@@ -18,7 +18,7 @@ export default class GroupHandler {
         }
       }
     });
-    socket.on('gettingGroup', async function(data, callback) {
+    socket.on('gettingGroup', async function (data, callback) {
       try {
         const groups = await GroupController.getGroupByUser({
           user: socket.user

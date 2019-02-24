@@ -1,13 +1,19 @@
 require('dotenv').config();
 import express from 'express';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 
 import connectToDb from './db/connect';
 
-import user from './routes/user-route';
-import group from './routes/group-route';
-import message from './routes/messsage-route';
-import upload from './routes/upload-route';
+import chat from './routes/chat-route';
+/** 
+  @API
+**/
+import { apiGroupRoute,
+  apiMessageRoute,
+  apiUploadRoute,
+  apiUserRoute 
+} from './api/routes';
 
 import { initSocket } from './socket-handler';
 
@@ -18,6 +24,7 @@ initSocket(http);
 
 connectToDb();
 
+server.use(cookieParser());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({
   extended: false
@@ -25,14 +32,15 @@ server.use(bodyParser.urlencoded({
 
 server.use(express.static('public'));
 
-server.use(user);
-server.use(group);
-server.use(message);
-server.use(upload);
 
-server.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
+
+/** 
+  @API
+**/
+server.use('/api', apiUserRoute);
+server.use('/api', apiGroupRoute);
+server.use('/api', apiMessageRoute);
+server.use('/api', apiUploadRoute);
 
 server.use((e, req, res, next) => {
   return res.status(400).json({

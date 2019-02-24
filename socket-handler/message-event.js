@@ -1,4 +1,4 @@
-import MessageController from '../controllers/message-controller';
+import { MessageController } from '../api/controllers';
 
 export default class MessageHandler {
   static initEvent(socket) {

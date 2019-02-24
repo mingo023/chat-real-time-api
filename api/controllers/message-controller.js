@@ -1,5 +1,5 @@
-import { messageRepository, groupRepository } from '../repositories';
-import { ResponseHandler } from '../helper';
+import { messageRepository, groupRepository } from '../../repositories';
+import { ResponseHandler } from '../../helper';
 
 export default class MessageController {
   static async getAll(req, res, next) {

@@ -1,8 +1,8 @@
-import { userRepository } from '../repositories';
-import { ResponseHandler } from '../helper';
+import { userRepository } from '../../repositories';
+import { ResponseHandler } from '../../helper';
 import JWT from 'jsonwebtoken';
 
-import MailService from '../service/mail-service';
+import MailService from '../../service/mail-service';
 
 import bcrypt from 'bcrypt';
 const saltRounds = 10;
@@ -131,6 +131,7 @@ export default class UserController {
 
       delete user.password;
       const token = await JWT.sign(user, process.env.KEY_JWT);
+      
       return ResponseHandler.returnSuccess(res, {
         user,
         token

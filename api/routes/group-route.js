@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import GroupController from '../controllers/group-controller';
+import { GroupController } from '../controllers';
 import validate from 'express-validation';
-import validation from '../validation';
-import authMiddleware from '../middlewares/auth-middleware';
+import validation from '../../validation';
+import authMiddleware from '../../middlewares/auth-middleware';
 
 const router = new Router();
 

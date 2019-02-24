@@ -1,5 +1,5 @@
 import Path from 'path';
-import { ResponseHandler } from '../helper';
+import { ResponseHandler } from '../../helper';
 import formidable from 'formidable';
 
 export default class UploadController {

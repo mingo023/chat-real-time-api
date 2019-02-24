@@ -4,7 +4,8 @@ import { userRepository } from '../repositories';
 module.exports.requireAuth = async (req, res, next) => {
   try {
     const { socket } = req;
-    const { token } = req.query ||req.headers || req.body;
+    const token = req.query.token || req.headers.token || req.body.token;
+    
     if (!token) {
       return next(new Error('Not found authentication'));
     }
