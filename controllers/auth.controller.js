@@ -22,7 +22,6 @@ export default class Auth {
       const user = await userRepository.get(options);
       if (!user) {
         return res.sendFile(path.resolve(__dirname, '../views/login/index.html'));
-
       }
 
       const isCorrectPassword = await bcrypt.compare(password, user.password);
@@ -32,8 +31,8 @@ export default class Auth {
 
       delete user.password;
       const token = await JWT.sign(user, process.env.KEY_JWT);
-      res.cookie('token', `Bearer ${token}`);
-      res.redirect('/chat');
+      res.cookie('token', 'Bearer ' + token);
+      return res.redirect('/chat');
     } catch (err) {
       return next(err);
     }
@@ -42,11 +41,11 @@ export default class Auth {
     try {
       const { token } = req.cookies;
       if (!token) {
-        return res.sendFile(path.resolve(__dirname, '../views/login/index.html'));
+        return res.redirect('/login');
       }
       const tokens = token.split('Bearer ');
       if (tokens.length !== 2 || tokens[0] !== '') {
-        return res.sendFile(path.resolve(__dirname, '../views/login/index.html'));
+        return res.redirect('/login');
       }
       const authToken = tokens[1];
       const data = await JWT.verify(authToken, process.env.KEY_JWT);
@@ -57,10 +56,12 @@ export default class Auth {
       }
       const user = await userRepository.get(options);
       if (!user) {
-        return res.sendFile(path.resolve(__dirname, '../views/login/index.html'));
+        return res.redirect('/login');
       }
+
       req.user = user;
-      return res.sendFile(path.resolve(__dirname, '../views/index.html'));
+
+      return next();
     } catch (err) {
       return next(err);
     }

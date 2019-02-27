@@ -3,7 +3,7 @@ import messageEvent from './message-event';
 import groupEvent from './group-event';
 
 module.exports.initSocket = async (server) => {
-
+  // const userAccesses = [];
   const io = require('socket.io')(server);
   io
   .use(async function (socket, next) {
@@ -14,9 +14,7 @@ module.exports.initSocket = async (server) => {
     }
   })
   .on('connection', function (socket, next) {
-    // socket.removeAllListeners();
-    console.log('user is connected');
-
+    socket.join('some room');
     messageEvent.initEvent(socket);
     groupEvent.initEvent(socket);
 

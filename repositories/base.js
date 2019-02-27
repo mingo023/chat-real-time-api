@@ -9,13 +9,13 @@ export default class BaseRepository {
       page: 1,
       where: {},
       sort: {
-        _id: -1
+        createdAt: -1
       },
       lean: false,
       ...options
     };
-    if (newOptions.limit > 5) {
-      newOptions.limit = 5
+    if (newOptions.limit > 10) {
+      newOptions.limit = 10
     }
     newOptions.skip = (newOptions.page - 1) * newOptions.limit;
     if (newOptions.populate) {
@@ -25,6 +25,7 @@ export default class BaseRepository {
         .skip(newOptions.skip)
         .limit(newOptions.limit)
         .populate(newOptions.populate)
+        .sort(newOptions.sort)
         .select(newOptions.select)
         .lean(newOptions.lean);
     }
@@ -33,6 +34,7 @@ export default class BaseRepository {
       .find(newOptions.where)
       .skip(newOptions.skip)
       .limit(newOptions.limit)
+      .sort(newOptions.sort)
       .select(newOptions.select)
       .lean(newOptions.lean);
   };

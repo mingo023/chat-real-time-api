@@ -18,11 +18,27 @@ export default class GroupHandler {
         }
       }
     });
-    socket.on('gettingGroup', async function (data, callback) {
+    socket.on('joiningGroup', async function(data, callback) {
+      try {
+        const group = await GroupController.get({
+          params : {
+            id: data.groupId
+          }
+        });
+        socket.group = group;
+      } catch (e) {
+        if (callback) {
+          return callback(e.message);
+        }
+      }
+    });
+
+    socket.on('gettingGroup', async function(data, callback) {
       try {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
         });
+        console.log(groups);
         socket.emit('gettingGroup', groups);
       } catch (e) {
         console.log(e);
@@ -30,6 +46,6 @@ export default class GroupHandler {
           return callback(e.message);
         }
       }
-    })
+    });
   };
 };

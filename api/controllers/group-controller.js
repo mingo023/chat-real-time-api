@@ -30,7 +30,9 @@ export default class GroupController {
     }
   };
 
-  static async get(req, res, next) {
+  static async get(req, res, next = (e) => {
+    return Promise.reject(e);
+  }) {
     try {
   
       const options = {
@@ -52,9 +54,10 @@ export default class GroupController {
       if (!group) {
         return next(new Error('Group not found!'));
       }
-  
-      return ResponseHandler.returnSuccess(res, group);
-  
+      if (res) {
+        return ResponseHandler.returnSuccess(res, group);
+      }
+      return group;
     } catch (err) {
       return next(err);
     }
@@ -212,6 +215,7 @@ export default class GroupController {
       
       const options = {
         where: { members: req.user._id },
+        populate: 'lastMessage',
         lean: true
       };
       const groups = await groupRepository.getAll(options);

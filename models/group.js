@@ -14,7 +14,8 @@ let groupSchema = new Schema({
     ref: 'User'
   },
   lastMessage: {
-    type: Schema.Types.ObjectId
+    type: Schema.Types.ObjectId,
+    ref: 'Message'
   },
   type: {
     type: String,

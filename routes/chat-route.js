@@ -8,6 +8,7 @@ const router = new Router();
 router
   .get('/chat', AuthController.auth, ChatController.chat);
 router  
+  .get('/login', AuthController.login)
   .post('/login', AuthController.postLogin);
   
 
