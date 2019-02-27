@@ -5,8 +5,6 @@ export default class MessageHandler {
   static initEvent(socket) {
     socket.on('sendingMessage', async function (data, callback) {
       console.log('Get data on event sendingMessage');
-      console.log(data);
-
       try {
         const message = await MessageController.create({
           user: socket.user,
@@ -15,7 +13,7 @@ export default class MessageHandler {
             group: socket.group
           }
         });
-
+        console.log(data);
         socket.broadcast.emit('sendingMessage', data);
         return callback(null, message);
       } catch (e) {
@@ -37,8 +35,9 @@ export default class MessageHandler {
             group: data.id
           }
         });
-        console.log(messages.reverse());
-        socket.emit('loadingMessages', messages.reverse());
+        const payload = await JWT.decode(data.token);
+        
+        socket.emit('loadingMessages', { messages: messages.reverse(), user: payload._id });
       } catch (e) {
         console.log(e);
         if (callback) {

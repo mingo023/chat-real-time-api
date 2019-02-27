@@ -14,7 +14,7 @@ module.exports.initSocket = async (server) => {
     }
   })
   .on('connection', function (socket, next) {
-    socket.join('some room');
+  
     messageEvent.initEvent(socket);
     groupEvent.initEvent(socket);
 

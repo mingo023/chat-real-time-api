@@ -38,7 +38,6 @@ export default class GroupHandler {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
         });
-        console.log(groups);
         socket.emit('gettingGroup', groups);
       } catch (e) {
         console.log(e);

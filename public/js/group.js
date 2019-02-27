@@ -44,4 +44,14 @@ socket.on('gettingGroup', function (data) {
       <i class="fas fa-circle"></i>${item.name}
     </li>`);
   };
+  const firstGroup = document.querySelector('.list-user li').dataset.groupId;  
+
+  socket.emit('loadingMessages', {
+    id: firstGroup,
+    token
+  });
+  
+  socket.emit('joiningGroup', {
+    groupId: firstGroup 
+  });
 });

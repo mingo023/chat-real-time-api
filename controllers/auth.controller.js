@@ -32,7 +32,7 @@ export default class Auth {
       delete user.password;
       const token = await JWT.sign(user, process.env.KEY_JWT);
       res.cookie('token', 'Bearer ' + token);
-      return res.redirect('/chat');
+      return res.redirect('/');
     } catch (err) {
       return next(err);
     }
