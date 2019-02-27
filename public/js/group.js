@@ -34,20 +34,14 @@ function getGroup(event) {
   });
 };
 
-const boxChat = document.querySelector('.list');
+const boxChat = document.querySelector('.list-user');
 boxChat.addEventListener('click', getGroup);
 
 socket.on('gettingGroup', function (data) {
   for (let item of data) {
-    const boxChat = document.querySelector('.list');
-    boxChat.insertAdjacentHTML('beforeend', `<li class="clearfix" data-group-id=${item._id}>
-    <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
-    <div class="about">
-      <div class="name">${item.name}</div>
-      <div class="status">
-        <i class="fa fa-circle online"></i> ${item.lastMessage.messages}
-      </div>
-    </div>
-  </li>`);
+    const boxChat = document.querySelector('.list-user');
+    boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
+      <i class="fas fa-circle"></i>${item.name}
+    </li>`);
   };
 });

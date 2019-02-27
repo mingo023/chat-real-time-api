@@ -3,6 +3,8 @@ const hours = now.getHours();
 const mins = now.getMinutes();
 const dateTimeFormat = now.getHours() <= 12 ? 'AM' : 'PM';
 
+const hisMessage = document.querySelector('.middle-content');
+
 function handleEvent(error, data) {
   if (error) {
     console.log(error);
@@ -13,7 +15,6 @@ function handleEvent(error, data) {
 
 function sendMessage() {
   let message = document.querySelector('#message-to-send').value;
-  const chatBox = document.querySelector('.chat-history');
   message = message.trim();
   if (message) {
     socket.emit('sendingMessage', {
@@ -22,69 +23,50 @@ function sendMessage() {
     }, handleEvent);
 
     document.querySelector('#message-to-send').value = '';
-    const hisMessage = document.querySelector('.history-massage');
-
-    hisMessage.insertAdjacentHTML('beforeend', `<li class="clearfix">
-    <div class="message-data align-right">
-      <span class="message-data-time">${hours}:${mins} ${dateTimeFormat}, Today</span> &nbsp; &nbsp;
-      <span class="message-data-name">Olia</span> <i class="fa fa-circle me"></i>
-
-    </div>
-    <div class="message other-message float-right">
-      ${message}
-    </div>
-  </li>`);
-    chatBox.scrollTop = chatBox.scrollHeight;
+    hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
+      <span>John Hamster</span>
+      <div class="chat-content">${message}</div>
+      <small>${hours}:${mins}</small>
+    </div>`);
+    hisMessage.scrollTop = hisMessage.scrollHeight;
   }
 };
+
+function runScript(event) {
+  console.log(event);
+  if (event.which == 13 || event.keyCode == 13) {
+      sendMessage()
+  }
+};
+
 
 const btnSend = document.querySelector('.msg_send_btn');
 btnSend.addEventListener('click', sendMessage);
 
 socket.on('loadingMessages', function (data) {
-  const hisMessage = document.querySelector('.history-massage');
-  const chatBox = document.querySelector('.chat-history');
   for (let item of data) {
-    const time = new Date(item.createdAt);
-    const dateTimeFormat = time.getHours() <= 12 ? 'AM' : 'PM';
-    hisMessage.insertAdjacentHTML('afterbegin', `<li class="clearfix">
-    <div class="message-data align-right">
-      <span class="message-data-time">${hours}:${mins} ${dateTimeFormat}, Today</span> &nbsp; &nbsp;
-      <span class="message-data-name">Olia</span> <i class="fa fa-circle me"></i>
-
-    </div>
-    <div class="message other-message float-right">
-      ${item.messages}
-    </div>
-  </li>`);
+    hisMessage.insertAdjacentHTML('afterbegin', `<div class="me">
+    <span>John Hamster</span>
+    <div class="chat-content">${item.messages}</div>
+    <small>${hours}:${mins}</small>
+    </div>`);
   }
-  chatBox.scrollTop = chatBox.scrollHeight;
+  hisMessage.scrollTop = hisMessage.scrollHeight;
 });
 
 socket.on('sendingMessage', function (data) {
-  const hisMessage = document.querySelector('.history-massage');
-  const chatBox = document.querySelector('.chat-history');
   if (data.token !== token) {
-    hisMessage.insertAdjacentHTML('beforeend', `<li>
-  <div class="message-data">
-      <span class="message-data-name"><i class="fa fa-circle online"></i> Vincent</span>
-      <span class="message-data-time">${hours}:${mins} ${dateTimeFormat}, Today</span>
-    </div>
-    <div class="message my-message">
-      ${data.message}
-    </div>
-  </li>`);
+    hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
+    <span>John Hamster</span>
+    <div class="chat-content">${data.message}</div>
+    <small>${hours}:${mins}</small>
+  </div>`);
   } else {
-    hisMessage.insertAdjacentHTML('beforeend', ` <li class="clearfix">
-    <div class="message-data align-right">
-      <span class="message-data-time">${hours}:${mins} ${dateTimeFormat}, Today</span> &nbsp; &nbsp;
-      <span class="message-data-name">Olia</span> <i class="fa fa-circle me"></i>
-
-    </div>
-    <div class="message other-message float-right">
-      ${data.message}
-    </div>
-  </li>`);
+    hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
+    <span>John Hamster</span>
+    <div class="chat-content">${data.message}</div>
+    <small>${hours}:${mins}</small>
+  </div>`);
   }
-  chatBox.scrollTop = chatBox.scrollHeight;
+  hisMessage.scrollTop = hisMessage.scrollHeight;
 });
