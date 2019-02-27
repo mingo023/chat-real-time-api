@@ -37,8 +37,17 @@ function getGroup(event) {
 const boxChat = document.querySelector('.list-user');
 boxChat.addEventListener('click', getGroup);
 
+function returnSocketPromise(id) {
+  return new Promise((res, rej) => {
+    socket.emit('joiningGroup', {
+      groupId: id 
+    });
+    res();
+  });
+};
+
 socket.on('gettingGroup', function (data) {
-  for (let item of data) {
+for (let item of data) {
     const boxChat = document.querySelector('.list-user');
     boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
       <i class="fas fa-circle"></i>${item.name}
@@ -51,7 +60,11 @@ socket.on('gettingGroup', function (data) {
     token
   });
   
-  socket.emit('joiningGroup', {
-    groupId: firstGroup 
-  });
+  returnSocketPromise(firstGroup) 
+    .then(function() {
+      socket.emit('loadingMessages', {
+        id: firstGroup,
+        token
+      });
+    });
 });
