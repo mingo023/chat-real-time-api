@@ -6,7 +6,10 @@ export default class GroupHandler {
       try {
         const group = await GroupController.create({
           user: socket.user,
-          body: data
+          body: {
+            members: [data.userId],
+            name: `${data.name}, ${socket.payload.fullName.first}` 
+          }
         });
         socket.group = group;
         socket.broadcast.emit('sendingMessage', data.name);

@@ -42,18 +42,17 @@ socket.on('loadingMessages', function (data) {
   for (let item of messages) {
     if (item.author === data.user) {
       hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-      <span>John Hamster</span>
-      <div class="chat-content">${item.messages}</div>
-      <small>${hours}:${mins}</small>
-      </div>`);
+        <span>John Hamster</span>
+        <div class="chat-content">${item.messages}</div>
+        <small>${hours}:${mins}</small>
+        </div>`);
     } else {
       hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-      <span>John Hamster</span>
-      <div class="chat-content">${item.messages}</div>
-      <small>${hours}:${mins}</small>
-      </div>`);
+        <span>John Hamster</span>
+        <div class="chat-content">${item.messages}</div>
+        <small>${hours}:${mins}</small>
+        </div>`);
     }
-    
   }
   hisMessage.scrollTop = hisMessage.scrollHeight;
 });

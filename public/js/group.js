@@ -9,15 +9,6 @@ function handleEvent(error, data) {
   console.log(data);
 };
 
-function createGroup(data) {
-  socket.emit('creatingGroup', {
-    authorId: 'A',
-    name: 'Chem gio',
-    members: ['5c497dae7d09bd058859265f'],
-    type: 'private'
-  }, handleEvent);
-};
-
 function loadGroup() {
   socket.emit('gettingGroup', {});
 };
@@ -32,6 +23,9 @@ function getGroup(event) {
     id: groupId,
     token
   });
+  while (hisMessage.firstChild) {
+    hisMessage.removeChild(hisMessage.firstChild);
+  };
 };
 
 const boxChat = document.querySelector('.list-user');
@@ -40,28 +34,30 @@ boxChat.addEventListener('click', getGroup);
 function returnSocketPromise(id) {
   return new Promise((res, rej) => {
     socket.emit('joiningGroup', {
-      groupId: id 
+      groupId: id
     });
     res();
   });
 };
 
+
+
 socket.on('gettingGroup', function (data) {
-for (let item of data) {
+  for (let item of data) {
     const boxChat = document.querySelector('.list-user');
     boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
       <i class="fas fa-circle"></i>${item.name}
     </li>`);
   };
-  const firstGroup = document.querySelector('.list-user li').dataset.groupId;  
+  const firstGroup = document.querySelector('.list-user li').dataset.groupId;
 
   socket.emit('loadingMessages', {
     id: firstGroup,
     token
   });
-  
-  returnSocketPromise(firstGroup) 
-    .then(function() {
+
+  returnSocketPromise(firstGroup)
+    .then(function () {
       socket.emit('loadingMessages', {
         id: firstGroup,
         token

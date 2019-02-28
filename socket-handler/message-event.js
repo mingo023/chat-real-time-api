@@ -41,7 +41,7 @@ export default class MessageHandler {
           }
         });
         const payload = await JWT.decode(data.token);
-
+        socket.payload = payload;
         socket.emit('loadingMessages', { messages: messages.reverse(), user: payload._id });
       } catch (e) {
         console.log(e);
@@ -51,6 +51,4 @@ export default class MessageHandler {
       }
     });
   };
-
-  
 };
