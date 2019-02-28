@@ -18,10 +18,13 @@ export default class GroupHandler {
         }
       }
     });
-    socket.on('joiningGroup', async function(data, callback) {
+  };
+  
+  static joiningGroup(socket) {
+    socket.on('joiningGroup', async function (data, callback) {
       try {
         const group = await GroupController.get({
-          params : {
+          params: {
             id: data.groupId
           }
         });
@@ -32,8 +35,10 @@ export default class GroupHandler {
         }
       }
     });
+  };
 
-    socket.on('gettingGroup', async function(data, callback) {
+  static gettingGroup(socket) {
+    socket.on('gettingGroup', async function (data, callback) {
       try {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
@@ -47,4 +52,16 @@ export default class GroupHandler {
       }
     });
   };
+
+  static async joinToGroup(socket) {
+    const groups = await GroupController.getGroupByUser({
+      user: { _id: socket.user }
+    });
+    if (groups.length > 0) {
+      for (const item of groups) {
+        socket.join(item._id);
+      };
+    };
+  };
+
 };

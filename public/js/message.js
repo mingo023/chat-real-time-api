@@ -23,11 +23,6 @@ function sendMessage() {
     }, handleEvent);
 
     document.querySelector('#message-to-send').value = '';
-    hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-      <span>John Hamster</span>
-      <div class="chat-content">${message}</div>
-      <small>${hours}:${mins}</small>
-    </div>`);
     hisMessage.scrollTop = hisMessage.scrollHeight;
   }
 };

@@ -1,8 +1,10 @@
 import { MessageController } from '../api/controllers';
 import JWT from 'jsonwebtoken';
 
+// const io = require('socket.io')(server);
+
 export default class MessageHandler {
-  static initEvent(socket) {
+  static initEvent(socket, io) {
     socket.on('sendingMessage', async function (data, callback) {
       console.log('Get data on event sendingMessage');
       try {
@@ -13,22 +15,25 @@ export default class MessageHandler {
             group: socket.group
           }
         });
-        console.log(data);
-        socket.broadcast.emit('sendingMessage', data);
+        io.to(socket.group._id).emit('sendingMessage', data);
         return callback(null, message);
       } catch (e) {
         if (callback) {
           return callback(e.message);
         }
       }
-    });
+    });   
+  };
 
+  static sendingTyping(socket, io) {
     socket.on('sendingTyping', function (data) {
       console.log('Get data on event sendingTyping');
       console.log(data);
     });
+  };
 
-    socket.on('loadingMessages', async function(data, callback) {
+  static loadingMessages(socket, io) {
+    socket.on('loadingMessages', async function (data, callback) {
       try {
         const messages = await MessageController.getMessagesByGroup({
           params: {
@@ -36,7 +41,7 @@ export default class MessageHandler {
           }
         });
         const payload = await JWT.decode(data.token);
-        
+
         socket.emit('loadingMessages', { messages: messages.reverse(), user: payload._id });
       } catch (e) {
         console.log(e);
@@ -46,4 +51,6 @@ export default class MessageHandler {
       }
     });
   };
+
+  
 };

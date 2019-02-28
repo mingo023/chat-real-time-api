@@ -21,8 +21,10 @@ export default class UserController {
       if (!users.length) {
         return next(new Error('Users not found!'))
       };
-
-      return ResponseHandler.returnSuccess(res, users);
+      if (res) {
+        return ResponseHandler.returnSuccess(res, users);
+      }
+      return users;
 
     } catch (err) {
       return next(err);
