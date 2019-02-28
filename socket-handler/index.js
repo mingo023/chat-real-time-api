@@ -20,8 +20,8 @@ module.exports.initSocket = async (server) => {
     messageEvent.initEvent(socket, io);
     messageEvent.sendingTyping(socket, io);
     messageEvent.loadingMessages(socket, io);
-  
-    groupEvent.initEvent(socket);
+    
+    groupEvent.creatingGroup(socket);
     groupEvent.joiningGroup(socket);
     groupEvent.gettingGroup(socket);
     groupEvent.joinToGroup(socket);

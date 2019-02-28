@@ -18,7 +18,7 @@ module.exports.requireAuth = async (req, res, next) => {
 
     const options = {
       where: { _id: data._id },
-      select: '_id password email',
+      select: '_id password email fullName',
       lean: true
     }
     const user = await userRepository.get(options);

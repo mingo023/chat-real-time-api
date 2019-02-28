@@ -3,19 +3,14 @@ const btnFriends = document.querySelector('.friends');
 const modal = document.querySelector('.modal');
 const friends = document.querySelector('.modal ul');
 
-function handleEvent(error, data) {
+
+socket.emit('gettingFriends', {}, function (error, data) { //load all friends when user connected
   if (error) {
     console.log(error);
-    return alert(error);
-  }
-  console.log(data);
-};
-
-
-socket.emit('gettingFriends', {}, handleEvent);
-socket.on('gettingFriends', function (data) {
-  for (const item of data) {
-    friends.insertAdjacentHTML('beforeend', ` <li data-user-id=${item._id}>${item.fullName.first}</li>`);
+  } else {
+    for (const item of data) {
+      friends.insertAdjacentHTML('beforeend', ` <li data-user-id=${item._id}>${item.fullName.first}</li>`);
+    }
   }
 });
 
@@ -27,21 +22,21 @@ document.querySelector('.middle-content').addEventListener('click', function () 
   modal.style.display = 'none';
 });
 
-function createAndLoadGroup(data) {
-  socket.emit('creatingGroup', data, function (error, data) {
+friends.addEventListener('click', function (event) {
+  const { userId } = event.target.dataset;
+  socket.emit('creatingGroup', userId, function (error, data) {
     if (error) {
       console.log(error);
     } else {
-      socket.emit('loadingMessages', {
-        id: data._id,
-        token
-      });
-    }
-  });
-};
+      groupId = data._id;
+      const boxChat = document.querySelector('.list-user');
+      boxChat.insertAdjacentHTML('afterbegin', `<li data-group-id=${groupId}>
+        <i class="fas fa-circle"></i>${data.name}
+      </li>`);
+      cleanMessages();
+      socket.emit('joiningGroup', {}, function (error, data) {
 
-friends.addEventListener('click', function (event) {
-  const { userId } = event.target.dataset;
-  const name = event.target.innerHTML;
-  createAndLoadGroup({ userId, name });
+      });
+    };
+  });
 });

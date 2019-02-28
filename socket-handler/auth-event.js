@@ -6,6 +6,7 @@ export default class authHandler {
     if (!token) {
       return next(new Error('Token not found!'));
     }
+    socket.token = token.split('Bearer ')[1];
     const req = {
       socket,
       query: { token }

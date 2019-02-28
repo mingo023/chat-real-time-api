@@ -13,10 +13,14 @@ export default class MessageHandler {
             group: socket.group
           }
         });
-        data.payload = socket.payload;
-        data.group = socket.group;
+        data = {
+          user: socket.user,
+          author: socket.user,
+          group: socket.group,
+          messages: data.message,
+          token: socket.token
+        };
         io.to(socket.group._id).emit('sendingMessage', data);
-        return callback(null, message);
       } catch (e) {
         if (callback) {
           return callback(e.message);
@@ -43,7 +47,7 @@ export default class MessageHandler {
         const payload = await JWT.decode(data.token);
         console.log(messages);
         socket.payload = payload;
-        socket.emit('loadingMessages', { messages: messages.reverse(), user: payload._id });
+        socket.emit('loadingMessages', { messages: messages.reverse(), user: socket.user._id });
       } catch (e) {
         console.log(e);
         if (callback) {

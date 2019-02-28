@@ -5,6 +5,31 @@ let dateTimeFormat = now.getHours() <= 12 ? 'AM' : 'PM';
 
 const hisMessage = document.querySelector('.middle-content');
 
+function cleanMessages() {
+  while (hisMessage.firstChild) {
+    hisMessage.removeChild(hisMessage.firstChild);
+  };
+}
+
+function showMessages(message, user) {
+  if (message.createdAt) {
+    hours = new Date(message.createdAt).getHours();
+    if (hours < 10) {
+      hours = '0' + hours;
+    }
+    mins = new Date(message.createdAt).getMinutes();
+    if (mins < 10) {
+      mins = '0' + mins;
+    }
+  }
+  hisMessage.insertAdjacentHTML('beforeend', `<div class=${user}>
+    <span>${message.author.fullName.first}</span>
+    <div class="chat-content">${message.messages}</div>
+    <small>${hours}:${mins}</small>
+  </div>`);
+  hisMessage.scrollTop = hisMessage.scrollHeight;
+}
+
 function handleEvent(error, data) {
   if (error) {
     console.log(error);
@@ -21,13 +46,12 @@ function sendMessage() {
       message,
       token
     }, handleEvent);
-
     document.querySelector('#message-to-send').value = '';
     hisMessage.scrollTop = hisMessage.scrollHeight;
   }
 };
 
-function runScript(event) {
+function runScript(event) {//tricker enter event 
   if (event.which == 13 || event.keyCode == 13) {
     sendMessage()
   }
@@ -38,51 +62,24 @@ const btnSend = document.querySelector('.msg_send_btn');
 btnSend.addEventListener('click', sendMessage);
 
 socket.on('loadingMessages', function (data) {
-  while (hisMessage.firstChild) {
-    hisMessage.removeChild(hisMessage.firstChild);
-  };
+  cleanMessages();
   const { messages } = data;
   for (let item of messages) {
-    hours = new Date(item.createdAt).getHours();
-    if (hours < 10) {
-      hours = '0' + hours;
-    }
-    mins = new Date(item.createdAt).getMinutes();
-    if (mins < 10) {
-      mins = '0' + mins;
-    }
     if (item.author._id === data.user) {
-      hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-        <span>${item.author.fullName.first}</span>
-        <div class="chat-content">${item.messages}</div>
-        <small>${hours}:${mins}</small>
-        </div>`);
+      showMessages(item, 'me');
     } else {
-      hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-        <span>${item.author.fullName.first}</span>
-        <div class="chat-content">${item.messages}</div>
-        <small>${hours}:${mins}</small>
-        </div>`);
+      showMessages(item, 'fr');
     }
   }
-  hisMessage.scrollTop = hisMessage.scrollHeight;
 });
 
 socket.on('sendingMessage', function (data) {
+  console.log(data.group._id, groupId);
   if (data.group._id === groupId) {
     if (data.token !== token) {
-      hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-      <span>${data.payload.fullName.first}</span>
-      <div class="chat-content">${data.message}</div>
-      <small>${hours}:${mins}</small>
-    </div>`);
+      showMessages(data, 'fr');
     } else {
-      hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-      <span>${data.payload.fullName.first}</span>
-      <div class="chat-content">${data.message}</div>
-      <small>${hours}:${mins}</small>
-    </div>`);
+      showMessages(data, 'me');
     }
-    hisMessage.scrollTop = hisMessage.scrollHeight;
   }
 });

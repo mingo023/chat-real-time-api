@@ -87,9 +87,6 @@ export default class GroupController {
       };
       
       if (data.type === 'private') {
-        if (data.members.length > 2) {
-          return next(new Error('Members is too long!'));
-        }
         const isGroupPrivateExist = await groupRepository.get(options) !== null;
         if (isGroupPrivateExist) {
           return next(new Error('This private group is exist!'));

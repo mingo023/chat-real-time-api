@@ -1,19 +1,18 @@
 import { GroupController } from '../api/controllers';
-import { isObject } from 'util';
 
 export default class GroupHandler {
-  static initEvent(socket) {
+  static creatingGroup(socket) {
     socket.on('creatingGroup', async function (data, callback) {
       try {
         const group = await GroupController.create({
           user: socket.user,
           body: {
-            members: [data.userId],
-            name: `${data.name}, ${socket.payload.fullName.first}` 
+            members: [data],
+            name: `` 
           }
         });
+        socket.join(group._id); // handle event when client create new group then join this user to group;
         socket.group = group;
-        socket.broadcast.emit('sendingMessage', data.name);
         return callback(null, group);
       } catch (e) {
         if (callback) {
@@ -32,6 +31,7 @@ export default class GroupHandler {
           }
         });
         socket.group = group;
+        return callback(null, group);
       } catch (e) {
         if (callback) {
           return callback(e.message);
@@ -46,7 +46,7 @@ export default class GroupHandler {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
         });
-        socket.emit('gettingGroup', groups);
+        return callback(null, groups);
       } catch (e) {
         console.log(e);
         if (callback) {
