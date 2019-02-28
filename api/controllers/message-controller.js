@@ -139,6 +139,7 @@ export default class MessageController {
       const options = {
         where: { group: req.params.group },
         select: 'messages createdAt author',
+        populate: 'author',
         limit: 10,
         lean: true
       };

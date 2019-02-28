@@ -1,4 +1,5 @@
 import { GroupController } from '../api/controllers';
+import { isObject } from 'util';
 
 export default class GroupHandler {
   static initEvent(socket) {
@@ -15,7 +16,6 @@ export default class GroupHandler {
         socket.broadcast.emit('sendingMessage', data.name);
         return callback(null, group);
       } catch (e) {
-        console.log(e);
         if (callback) {
           return callback(e.message);
         }
@@ -23,7 +23,7 @@ export default class GroupHandler {
     });
   };
   
-  static joiningGroup(socket) {
+  static joiningGroup(socket, io) {
     socket.on('joiningGroup', async function (data, callback) {
       try {
         const group = await GroupController.get({

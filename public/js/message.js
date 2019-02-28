@@ -1,7 +1,7 @@
 const now = new Date();
-const hours = now.getHours();
-const mins = now.getMinutes();
-const dateTimeFormat = now.getHours() <= 12 ? 'AM' : 'PM';
+let hours = now.getHours();
+let mins = now.getMinutes();
+let dateTimeFormat = now.getHours() <= 12 ? 'AM' : 'PM';
 
 const hisMessage = document.querySelector('.middle-content');
 
@@ -38,17 +38,28 @@ const btnSend = document.querySelector('.msg_send_btn');
 btnSend.addEventListener('click', sendMessage);
 
 socket.on('loadingMessages', function (data) {
+  while (hisMessage.firstChild) {
+    hisMessage.removeChild(hisMessage.firstChild);
+  };
   const { messages } = data;
   for (let item of messages) {
-    if (item.author === data.user) {
+    hours = new Date(item.createdAt).getHours();
+    if (hours < 10) {
+      hours = '0' + hours;
+    }
+    mins = new Date(item.createdAt).getMinutes();
+    if (mins < 10) {
+      mins = '0' + mins;
+    }
+    if (item.author._id === data.user) {
       hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-        <span>John Hamster</span>
+        <span>${item.author.fullName.first}</span>
         <div class="chat-content">${item.messages}</div>
         <small>${hours}:${mins}</small>
         </div>`);
     } else {
       hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-        <span>John Hamster</span>
+        <span>${item.author.fullName.first}</span>
         <div class="chat-content">${item.messages}</div>
         <small>${hours}:${mins}</small>
         </div>`);
@@ -60,13 +71,13 @@ socket.on('loadingMessages', function (data) {
 socket.on('sendingMessage', function (data) {
   if (data.token !== token) {
     hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-    <span>John Hamster</span>
+    <span>${data.payload.fullName.first}</span>
     <div class="chat-content">${data.message}</div>
     <small>${hours}:${mins}</small>
   </div>`);
   } else {
     hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-    <span>John Hamster</span>
+    <span>${data.payload.fullName.first}</span>
     <div class="chat-content">${data.message}</div>
     <small>${hours}:${mins}</small>
   </div>`);

@@ -15,7 +15,8 @@ function loadGroup() {
 
 function getGroup(event) {
   const { groupId } = event.target.dataset;
-  console.log(groupId);
+  const nameGroup = event.target.innerHTML;
+  document.querySelector('.top-content p').innerHTML = nameGroup.split('');
   socket.emit('joiningGroup', {
     groupId
   }, handleEvent);
@@ -40,17 +41,17 @@ function returnSocketPromise(id) {
   });
 };
 
-
-
 socket.on('gettingGroup', function (data) {
+  document.querySelector('.top-content p').innerHTML = data[0].name;
+
+  const boxChat = document.querySelector('.list-user');
   for (let item of data) {
-    const boxChat = document.querySelector('.list-user');
     boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
       <i class="fas fa-circle"></i>${item.name}
     </li>`);
   };
   const firstGroup = document.querySelector('.list-user li').dataset.groupId;
-
+  
   socket.emit('loadingMessages', {
     id: firstGroup,
     token

@@ -36,6 +36,7 @@ function createAndLoadGroup(data) {
         id: data._id,
         token
       });
+      
     }
   });
 };

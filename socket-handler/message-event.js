@@ -1,8 +1,6 @@
 import { MessageController } from '../api/controllers';
 import JWT from 'jsonwebtoken';
 
-// const io = require('socket.io')(server);
-
 export default class MessageHandler {
   static initEvent(socket, io) {
     socket.on('sendingMessage', async function (data, callback) {
@@ -15,6 +13,7 @@ export default class MessageHandler {
             group: socket.group
           }
         });
+        data.payload = payload;
         io.to(socket.group._id).emit('sendingMessage', data);
         return callback(null, message);
       } catch (e) {
@@ -41,6 +40,7 @@ export default class MessageHandler {
           }
         });
         const payload = await JWT.decode(data.token);
+        console.log(messages);
         socket.payload = payload;
         socket.emit('loadingMessages', { messages: messages.reverse(), user: payload._id });
       } catch (e) {
