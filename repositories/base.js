@@ -5,7 +5,7 @@ export default class BaseRepository {
 
   getAll(options = {}) {
     const newOptions = {
-      limit: 2,
+      limit: 10,
       page: 1,
       where: {},
       sort: {

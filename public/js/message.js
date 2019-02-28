@@ -69,18 +69,20 @@ socket.on('loadingMessages', function (data) {
 });
 
 socket.on('sendingMessage', function (data) {
-  if (data.token !== token) {
-    hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
-    <span>${data.payload.fullName.first}</span>
-    <div class="chat-content">${data.message}</div>
-    <small>${hours}:${mins}</small>
-  </div>`);
-  } else {
-    hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
-    <span>${data.payload.fullName.first}</span>
-    <div class="chat-content">${data.message}</div>
-    <small>${hours}:${mins}</small>
-  </div>`);
+  if (data.group._id === groupId) {
+    if (data.token !== token) {
+      hisMessage.insertAdjacentHTML('beforeend', `<div class="fr">
+      <span>${data.payload.fullName.first}</span>
+      <div class="chat-content">${data.message}</div>
+      <small>${hours}:${mins}</small>
+    </div>`);
+    } else {
+      hisMessage.insertAdjacentHTML('beforeend', `<div class="me">
+      <span>${data.payload.fullName.first}</span>
+      <div class="chat-content">${data.message}</div>
+      <small>${hours}:${mins}</small>
+    </div>`);
+    }
+    hisMessage.scrollTop = hisMessage.scrollHeight;
   }
-  hisMessage.scrollTop = hisMessage.scrollHeight;
 });

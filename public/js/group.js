@@ -1,5 +1,6 @@
 const token = document.cookie.split('token=Bearer%20')[1];
 const socket = io(`http://localhost:3000?token=Bearer ${token}`);
+let groupId;
 
 function handleEvent(error, data) {
   if (error) {
@@ -14,9 +15,9 @@ function loadGroup() {
 };
 
 function getGroup(event) {
-  const { groupId } = event.target.dataset;
+  ({ groupId } = event.target.dataset);
   const nameGroup = event.target.innerHTML;
-  document.querySelector('.top-content p').innerHTML = nameGroup.split('');
+  document.querySelector('.top-content p').innerHTML = nameGroup;
   socket.emit('joiningGroup', {
     groupId
   }, handleEvent);
@@ -50,17 +51,17 @@ socket.on('gettingGroup', function (data) {
       <i class="fas fa-circle"></i>${item.name}
     </li>`);
   };
-  const firstGroup = document.querySelector('.list-user li').dataset.groupId;
+  groupId = document.querySelector('.list-user li').dataset.groupId;
   
   socket.emit('loadingMessages', {
-    id: firstGroup,
+    id: groupId,
     token
   });
 
-  returnSocketPromise(firstGroup)
+  returnSocketPromise(groupId)
     .then(function () {
       socket.emit('loadingMessages', {
-        id: firstGroup,
+        id: groupId,
         token
       });
     });

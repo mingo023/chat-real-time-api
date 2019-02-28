@@ -13,7 +13,8 @@ export default class MessageHandler {
             group: socket.group
           }
         });
-        data.payload = payload;
+        data.payload = socket.payload;
+        data.group = socket.group;
         io.to(socket.group._id).emit('sendingMessage', data);
         return callback(null, message);
       } catch (e) {

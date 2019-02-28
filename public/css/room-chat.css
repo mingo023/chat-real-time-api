@@ -31,6 +31,12 @@ body {
   margin-top: 1rem;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
+  font-family: 'Laila', serif;
+  background: linear-gradient(to top, #0250c5 0%, #d43f8d 100%);
+  cursor: pointer;
+  user-select: none;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .top-content {

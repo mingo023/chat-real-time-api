@@ -78,10 +78,9 @@ export default class GroupController {
         members,
         type: members.length > 2 ? 'public' : 'private'
       };
-    
+      
       const options = {
         where: {
-          author: data.author,
           members: { $all: data.members }
         },
         lean: true
