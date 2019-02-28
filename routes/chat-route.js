@@ -10,6 +10,8 @@ router
 router  
   .get('/login', AuthController.login)
   .post('/login', AuthController.postLogin);
+router
+  .get('/signup', )
   
 export default router;
   
