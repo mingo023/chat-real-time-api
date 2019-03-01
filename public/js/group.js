@@ -51,7 +51,8 @@ async function loadGroup() {
       }
     }
   } catch (error) {
-    console.log(error);
+    showError(error);
+    closeMessage(errorHTML);
   }
 };
 

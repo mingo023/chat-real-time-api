@@ -75,7 +75,8 @@ async function joinGroupAndLoadMessages(event) {
     }
     nameGroup.innerHTML = group.innerHTML;
   } catch (error) {
-    console.log(error);
+    showError(error);
+    closeMessage(errorHTML);
   }
 };
 
@@ -84,10 +85,6 @@ boxChat.addEventListener('click', joinGroupAndLoadMessages);
 
 const btnSend = document.querySelector('.msg_send_btn');
 btnSend.addEventListener('click', sendMessage);
-
-socket.on('loadingMessages', function (data) {
-
-});
 
 socket.on('sendingMessage', function (data) {
   console.log(data.group._id, groupId);

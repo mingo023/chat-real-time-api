@@ -16,6 +16,7 @@ import { apiGroupRoute,
 } from './api/routes';
 
 import chat from './routes/chat-route';
+import signUp from './routes/signup-route';
 
 import { initSocket } from './socket-handler';
 
@@ -44,6 +45,7 @@ server.use('/api', apiMessageRoute);
 server.use('/api', apiUploadRoute);
 
 server.use(chat);
+server.use(signUp);
 
 server.use((e, req, res, next) => {
   return res.status(400).json({
