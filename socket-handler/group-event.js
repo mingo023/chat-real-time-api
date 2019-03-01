@@ -28,6 +28,9 @@ export default class GroupHandler {
         const group = await GroupController.get({
           params: {
             id: data.groupId
+          },
+          user: {
+            _id: socket.user._id
           }
         });
         socket.group = group;
@@ -46,7 +49,8 @@ export default class GroupHandler {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
         });
-        return callback(null, groups);
+        
+        return callback(null, { groups, user: socket.user });
       } catch (e) {
         console.log(e);
         if (callback) {

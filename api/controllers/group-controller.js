@@ -36,7 +36,7 @@ export default class GroupController {
     try {
   
       const options = {
-        where: { _id: req.params.id },
+        where: { _id: req.params.id, members: req.user._id },
         populate: [
           {
             path: 'author',
@@ -211,7 +211,7 @@ export default class GroupController {
       
       const options = {
         where: { members: req.user._id },
-        populate: 'lastMessage',
+        populate: 'lastMessage members',
         lean: true
       };
       const groups = await groupRepository.getAll(options);

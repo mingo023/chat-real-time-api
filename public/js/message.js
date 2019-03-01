@@ -57,20 +57,34 @@ function runScript(event) {//tricker enter event
   }
 };
 
+async function joinGroupAndLoadMessages(event) {
+  ({ groupId } = event.target.dataset);
+  try {
+    await socketPromise('joiningGroup', { groupId });
+    const data = await socketPromise('loadingMessages', { id: groupId, token });
+    const { messages } = data;
+
+    cleanMessages();
+    for (let item of messages) {
+      if (item.author._id === data.user) {
+        showMessages(item, 'me');
+      } else {
+        showMessages(item, 'fr');
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const boxChat = document.querySelector('.list-user');
+boxChat.addEventListener('click', joinGroupAndLoadMessages);
 
 const btnSend = document.querySelector('.msg_send_btn');
 btnSend.addEventListener('click', sendMessage);
 
 socket.on('loadingMessages', function (data) {
-  cleanMessages();
-  const { messages } = data;
-  for (let item of messages) {
-    if (item.author._id === data.user) {
-      showMessages(item, 'me');
-    } else {
-      showMessages(item, 'fr');
-    }
-  }
+
 });
 
 socket.on('sendingMessage', function (data) {

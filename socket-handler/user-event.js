@@ -3,6 +3,7 @@ import { userRepository } from '../repositories';
 export default class UserHandler {
   static gettingFriends(socket) {
     socket.on('gettingFriends', async function (data, callback) {
+
       try {
         const users = await userRepository.getAll({
           where: { _id: { $ne: socket.user._id } }
@@ -16,7 +17,8 @@ export default class UserHandler {
         if (callback) {
           return callback(e.message);
         }
-      }
+      };
+      
     });
   };
 };

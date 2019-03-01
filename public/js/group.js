@@ -2,63 +2,55 @@ const token = document.cookie.split('token=Bearer%20')[1];
 const socket = io(`http://localhost:3000?token=Bearer ${token}`);
 let groupId;
 
-function handleEvent(error, data) {
-  if (error) {
-    console.log(error);
-    return alert(error);
-  }
-  console.log(data);
+function socketPromise(event, data) {
+  return new Promise((res, rej) => {
+    socket.emit(event, data, function (error, data) {
+      if (error) {
+        rej(error);
+      }
+      res(data);
+    });
+  });
 };
 
-function loadGroup() {
-  socket.emit('gettingGroup', {}, function (error, data) {
-    if (error) {
-      console.log(error);
-    } else {
-      document.querySelector('.top-content p').innerHTML = data[0].name;
+async function loadGroup() {
+  try {
+    const res = await socketPromise('gettingGroup');
+    const { groups } = res;
+    document.querySelector('.top-content p').innerHTML = groups[0].name;
 
-      const boxChat = document.querySelector('.list-user');
+    const boxChat = document.querySelector('.list-user');
 
-      for (let item of data) {//show all group
+    for (let item of groups) {//show all group
+      if (item.members > 2) {
         boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
-        <i class="fas fa-circle"></i>${item.name}
+          <i class="fas fa-circle"></i>${item.name}
         </li>`);
-      };
+      } else {
+        const user = item.members.find(mem => mem._id !== res.user._id);//handle when group is private
+        console.log(user);
+        boxChat.insertAdjacentHTML('beforeend', `<li data-group-id=${item._id}>
+          <i class="fas fa-circle"></i>${user.fullName.first}
+        </li>`);
+      }
 
-      groupId = document.querySelector('.list-user li').dataset.groupId;
-
-      socket.emit('joiningGroup', {
-        groupId
-      }, function (error, data) {
-        if (error) {
-          console.log(error);
-        } else {
-          socket.emit('loadingMessages', {
-            id: groupId,
-            token
-          });
-        }
-      });
     };
-  });
+
+    groupId = document.querySelector('.list-user li').dataset.groupId;
+
+    await socketPromise('joiningGroup', { groupId });
+    const data = await socketPromise('loadingMessages', { id: groupId, token });
+    const { messages } = data;
+    for (let item of messages) {
+      if (item.author._id === data.user) {
+        showMessages(item, 'me');
+      } else {
+        showMessages(item, 'fr');
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-function getGroup(event) {
-  ({ groupId } = event.target.dataset);
-  const nameGroup = event.target.innerHTML;
-  document.querySelector('.top-content p').innerHTML = nameGroup;
-  socket.emit('joiningGroup', {
-    groupId
-  }, handleEvent);
-  socket.emit('loadingMessages', {
-    id: groupId,
-    token
-  });
-  while (hisMessage.firstChild) {
-    hisMessage.removeChild(hisMessage.firstChild);
-  };
-};
-
-const boxChat = document.querySelector('.list-user');
-boxChat.addEventListener('click', getGroup);
 
