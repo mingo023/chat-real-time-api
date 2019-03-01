@@ -1,46 +1,61 @@
-document.addEventListener('DOMContentLoaded', function () {
+const token = document.cookie.split('token=Bearer%20')[1];
+const socket = io(`http://localhost:3000?token=Bearer ${token}`);
 
-  var container = document.querySelector('.container');
-  container.style.height = `${window.innerHeight}px`;
-  window.addEventListener('resize', function() {
-      container.style.height = `${window.innerHeight}px`;
-  })
+const btnFriends = document.querySelector('.friends');
+const modal = document.querySelector('.modal');
+const friends = document.querySelector('.modal ul');
+const errorHTML = document.querySelector('.error');
+const boxChat = document.querySelector('.list-user');
+const group = document.querySelector('.list-user li');
+const hisMessage = document.querySelector('.middle-content');
+const btnSend = document.querySelector('.msg_send_btn');
 
-  var body = document.querySelector('body');
-  var topContent = document.querySelector('.top-content');
-  topContent.insertAdjacentHTML('afterbegin',
-      `<div id="users-toggle">
-      <div class="one"></div>
-      <div class="two"></div>
-      <div class="three"></div>
-  </div>`);
-  body.insertAdjacentHTML('beforeend', '<div id="toggle-mask"></div>');
+const now = new Date();
+let hours = now.getHours();
+let mins = now.getMinutes();
+let dateTimeFormat = now.getHours() <= 12 ? 'AM' : 'PM';
 
-  var userToggle = document.getElementById('users-toggle');
-  var users = document.querySelector('.container .users');
-  var toggleMask = document.getElementById('toggle-mask');
+let nameGroup = document.querySelector('.top-content p');
+let groupId;
 
-  userToggle.addEventListener('click', function () {
-      this.classList.toggle('active');
-      users.classList.toggle('active');
-      toggleMask.classList.toggle('active');
+function socketPromise(event, data) {
+  return new Promise((res, rej) => {
+    socket.emit(event, data, function (error, data) {
+      if (error) {
+        rej(error);
+      }
+      res(data);
+    });
   });
+};
 
-  toggleMask.addEventListener('click', function () {
-      users.classList.remove('active');
-      userToggle.classList.remove('active');
-      this.classList.remove('active');
+function showError(error) {
+  errorHTML.firstElementChild.innerHTML = error;
+  errorHTML.style.display = 'block';
+};
+
+function closeMessage(ele) {
+  document.querySelector('.middle-content').addEventListener('click', function () {
+    ele.style.display = 'none';
   });
+};
 
-  var topDropdown = document.querySelector('.top-content .top-dropdown');
-  var topDropdownContent = document.querySelector('.top-content .tools');
-  topDropdown.addEventListener('click', function () {
-      topDropdownContent.classList.toggle('active');
-  });
+function cleanMessages() {
+  while (hisMessage.firstChild) {
+    hisMessage.removeChild(hisMessage.firstChild);
+  };
+};
 
-  var middleContent = document.querySelector('.container .middle-content');
-  middleContent.addEventListener('scroll', function () {
-      topDropdownContent.classList.remove('active');
-  });
+function handleEvent(error, data) {
+  if (error) {
+    console.log(error);
+    return alert(error);
+  }
+  console.log(data);
+};
 
-}, false);
+function runScript(event) {//tricker enter event 
+  if (event.which == 13 || event.keyCode == 13) {
+    sendMessage()
+  }
+};

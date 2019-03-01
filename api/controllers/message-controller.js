@@ -146,7 +146,6 @@ export default class MessageController {
 
       const messages = await messageRepository.getAll(options);
 
-      if (!messages.length) { return next(new Error('Messages not found!')) };
       if (res) {
         return ResponseHandler.returnSuccess(res, messages);
       }

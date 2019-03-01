@@ -9,12 +9,12 @@ export default class GroupHandler {
           user: socket.user,
           body: {
             members: [data],
-            name: `` 
+            name: ``
           }
         });
         socket.join(group._id); // handle event when client create new group then join this user to group;
         socket.group = group;
-        return callback(null, group);
+        return callback(null, group._doc);
       } catch (e) {
         if (callback) {
           return callback(e.message);
@@ -22,7 +22,7 @@ export default class GroupHandler {
       }
     });
   };
-  
+
   static joiningGroup(socket, io) {
     socket.on('joiningGroup', async function (data, callback) {
       try {
@@ -50,7 +50,7 @@ export default class GroupHandler {
         const groups = await GroupController.getGroupByUser({
           user: socket.user
         });
-        
+
         return callback(null, { groups, user: socket.user });
       } catch (e) {
         console.log(e);

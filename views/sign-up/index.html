@@ -14,14 +14,14 @@
     <div class="user">
         <header class="user__header">
             <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3219/logo.svg" alt="" />
-            <h1 class="user__title">A lightweight and simple sign-up form</h1>
+            <h1 class="user__title">Chat Cotoky</h1>
         </header>
 
-        <form class="form" method="POST" action="/signup">
+        <form class="form" action="/signup" method="POST">
             <div class="form__group">
                 <input type="text" placeholder="First name" class="form__input" name="first"/>
             </div>
-
+            
             <div class="form__group">
                 <input type="text" placeholder="Last name" class="form__input" name="last"/>
             </div>
@@ -34,7 +34,7 @@
                 <input type="password" placeholder="Password" class="form__input" name="password"/>
             </div>
 
-            <button class="btn" type="button">Register</button>
+            <button class="btn" type="submit">Register</button>
         </form>
     </div>
 
