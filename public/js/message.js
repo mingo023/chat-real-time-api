@@ -58,10 +58,11 @@ function runScript(event) {//tricker enter event
 };
 
 async function joinGroupAndLoadMessages(event) {
-  ({ groupId } = event.target.dataset);
+  const group = event.target;
+  groupId = group.dataset.groupId;
   try {
     await socketPromise('joiningGroup', { groupId });
-    const data = await socketPromise('loadingMessages', { id: groupId, token });
+    const data = await socketPromise('loadingMessages', { id: groupId });
     const { messages } = data;
 
     cleanMessages();
@@ -72,6 +73,7 @@ async function joinGroupAndLoadMessages(event) {
         showMessages(item, 'fr');
       }
     }
+    nameGroup.innerHTML = group.innerHTML;
   } catch (error) {
     console.log(error);
   }

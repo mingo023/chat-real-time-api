@@ -1,6 +1,7 @@
 import { requireAuth } from '../middlewares/auth-middleware';
+import { groupRepository } from '../repositories';
 
-export default class authHandler {
+export default class Helper {
   static async auth(socket, next) {
     const { token } = socket.handshake.query;
     if (!token) {
@@ -15,6 +16,20 @@ export default class authHandler {
       await requireAuth(req, null, next);
     } catch (err) {
       return next(err);
+    }
+  };
+
+  static async checkUserExistInGroup(groupId, memberId) {
+    try {
+      return await groupRepository.get({
+        where: {
+          _id: groupId,
+          members: memberId
+        }
+      }) !== null; 
+    } catch (error) {
+      console.log(error);
+      return error;
     }
   };
 };

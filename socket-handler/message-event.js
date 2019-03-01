@@ -1,4 +1,5 @@
 import { MessageController } from '../api/controllers';
+import helper from './helper';
 
 export default class MessageHandler {
   static initEvent(socket, io) {
@@ -29,7 +30,7 @@ export default class MessageHandler {
         }
       };
 
-    });   
+    });
   };
 
   static sendingTyping(socket, io) {
@@ -44,19 +45,22 @@ export default class MessageHandler {
     socket.on('loadingMessages', async function (data, callback) {
 
       try {
-        const messages = await MessageController.getMessagesByGroup({
-          params: {
-            group: data.id
-          }
-        });
-        return callback(null, { messages: messages.reverse(), user: socket.user._id });
+        const isUserExistInGroup = await helper.checkUserExistInGroup(data.id, socket.user._id);
+        if (isUserExistInGroup) {
+          const messages = await MessageController.getMessagesByGroup({
+            params: {
+              group: data.id
+            }
+          });
+          return callback(null, { messages: messages.reverse(), user: socket.user._id });
+        }
+        return callback('Group not is exist');
       } catch (e) {
         console.log(e);
         if (callback) {
           return callback(e.message);
         }
       }
-
     });
   };
 };

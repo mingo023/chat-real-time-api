@@ -34,9 +34,7 @@ friends.addEventListener('click', function (event) {
         <i class="fas fa-circle"></i>${data.name}
       </li>`);
       cleanMessages();
-      socket.emit('joiningGroup', {}, function (error, data) {
-
-      });
+      socket.emit('joiningGroup', {});
     };
   });
 });

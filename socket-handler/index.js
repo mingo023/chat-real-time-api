@@ -1,4 +1,4 @@
-import authHandler from './helper';
+import helper from './helper';
 import messageEvent from './message-event';
 import groupEvent from './group-event';
 import userEvent from './user-event';
@@ -9,7 +9,7 @@ module.exports.initSocket = async (server) => {
   io
   .use(async function (socket, next) {
     try {
-      await authHandler.auth(socket, next);
+      await helper.auth(socket, next);
     } catch (e) {
       return next(e);
     }

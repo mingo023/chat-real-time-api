@@ -1,4 +1,5 @@
 import { GroupController } from '../api/controllers';
+import helper from './helper';
 
 export default class GroupHandler {
   static creatingGroup(socket) {
