@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Express api",
   "scripts": {
-    "start": "nodemon server.js --inspect --exec babel-node",
+    "dev": "nodemon server.js --inspect --exec babel-node",
+    "start": "node server.js",
     "build": "next build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
