@@ -1,40 +1,36 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-  <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
-  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/login.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="css/signup.css">
+    <title>Chat Cotoky</title>
 </head>
 
 <body>
-  <div class="container">
-    <div class="row">
-      <div class="col-md-offset-5 col-md-3">
-        <form action="/login" method="POST">
-          <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-              placeholder="Enter email" name="email">
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-          </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password"
-              name="password">
-          </div>
-          <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-            <label class="form-check-label" for="exampleCheck1">Check me out</label>
-          </div>
-          <button  class="btn btn-primary" id="login">Submit</button>
-        </form>
-      </div>
+    <div class="user">
+        <header class="user__header">
+            <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3219/logo.svg" alt="" />
+            <h1 class="user__title">Chat Cotoky Login</h1>
+        </header>
+
+        <form class="form" action="/login" method="POST">
+            <div class="form__group">
+                <input type="email" placeholder="Email" class="form__input" name="email"/>
+            </div>
+
+            <div class="form__group">
+                <input type="password" placeholder="Password" class="form__input" name="password"/>
+            </div>
+
+            <button class="btn" type="submit">Đăng nhập</button>
+            <div class="sign-up"><a href="/signup">Đăng ký</a> nếu chưa có tài khoản</div>
+          </form>
     </div>
-  </div>
-  
+
 </body>
 
 </html>

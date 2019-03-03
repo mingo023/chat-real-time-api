@@ -114,3 +114,10 @@ body {
     background-position: 0 0;
   }
 }
+.sign-up {
+  margin-top: 10px;
+}
+.sign-up a{
+  text-decoration: none;
+  color: #f4f4f4;
+}

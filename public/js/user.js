@@ -20,6 +20,7 @@ friends.addEventListener('click', async function (event) {
     await socketPromise('creatingGroup', userId);
     const boxChat = document.querySelector('.list-user');
     boxChat.innerHTML = '';
+    cleanMessages();
     loadGroup();
   } catch (error) {
     showError(error);
