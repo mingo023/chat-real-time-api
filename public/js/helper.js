@@ -1,5 +1,5 @@
 const token = document.cookie.split('token=Bearer%20')[1];
-const socket = io(`https://chat-realtime-socketio.herokuapp.com/?token=Bearer ${token}`);
+const socket = io(`http://localhost:3000/?token=Bearer ${token}`);
 
 const btnFriends = document.querySelector('.friends');
 const modal = document.querySelector('.modal');

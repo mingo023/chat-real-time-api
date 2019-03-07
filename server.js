@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 
 import connectToDb from './db/connect';
-
+import Cors from 'cors';
 
 /** 
   @API
@@ -27,6 +27,7 @@ initSocket(http);
 
 connectToDb();
 
+server.use(Cors());
 server.use(cookieParser());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({
