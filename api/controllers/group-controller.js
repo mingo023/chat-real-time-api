@@ -1,6 +1,6 @@
 import { messageRepository, groupRepository } from '../../repositories';
 import { ResponseHandler } from '../../helper';
-
+import Group from '../../models/group';
 export default class GroupController {
   static async getAll(req, res, next) {
     try {
@@ -19,7 +19,6 @@ export default class GroupController {
         ],
         lean: true
       };
-  
       const groups = await groupRepository.getAll(options);
       if (!groups.length) { return next(new Error('Groups not found!')) };
   
