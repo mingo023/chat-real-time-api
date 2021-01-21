@@ -33,6 +33,6 @@
     "mime-types": "^2.1.22",
     "mongoose": "^5.4.19",
     "nodemailer": "^5.1.1",
-    "socket.io": "^2.2.0"
+    "socket.io": "^2.4.0"
   }
 }
