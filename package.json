@@ -28,7 +28,7 @@
     "formidable": "^1.2.1",
     "joi": "^14.3.1",
     "joi-objectid": "^2.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "md5": "^2.2.1",
     "mime-types": "^2.1.22",
     "mongoose": "^5.4.19",
